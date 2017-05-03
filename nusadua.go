@@ -10,13 +10,15 @@
 /**
  *
  *
- * @file rpc_server.go
+ * @file nusadua.go
  * @author Menglong TAN <tanmenglong@gmail.com>
- * @date Wed May  3 14:54:44 2017
+ * @date Wed May  3 15:31:46 2017
  *
  **/
 
-package server
+package main
+
+import "github.com/crackcell/nusadua/config"
 
 //===================================================================
 // Public APIs
@@ -27,5 +29,5 @@ package server
 //===================================================================
 
 func main() {
-
+	config.Parse()
 }
