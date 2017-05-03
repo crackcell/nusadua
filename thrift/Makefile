@@ -13,4 +13,4 @@ all :
 	thrift -r --out ../ --gen go ./nusadua.thrift
 
 clean :
-	rm -rf ../server
+	rm -rf ../rpc
