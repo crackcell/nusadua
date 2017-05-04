@@ -36,8 +36,7 @@ var (
 	Help    bool
 	Verbose bool
 
-	Host string
-	Port int
+	Role string
 
 	ConfigFile string
 )
@@ -56,6 +55,8 @@ func Parse() {
 	flag.BoolVar(&Verbose, "verbose", false, "Use verbose output")
 	flag.BoolVar(&Verbose, "v", false, "Use verbose output")
 
+	flag.StringVar(&ConfigFile, "r", "follwer", "Node role")
+	flag.StringVar(&ConfigFile, "role", "follwer", "Node role")
 	flag.StringVar(&ConfigFile, "c", "", "Config file")
 	flag.StringVar(&ConfigFile, "config", "", "Config file")
 
@@ -97,8 +98,8 @@ Options:
     -h, --help         Print this message
     -v, --verbose      Use verbose output
 
-    -n, --host         Binding address
-    -p, --port         Binding port
+    -r, --role         Node role: leader or follower, default: follower
+	-c, --config       Config file path
 `
 )
 
