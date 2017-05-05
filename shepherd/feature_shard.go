@@ -10,9 +10,9 @@
 /**
  *
  *
- * @file meta_test.go
+ * @file feature_shard.go
  * @author Menglong TAN <tanmenglong@gmail.com>
- * @date Thu May  4 19:48:51 2017
+ * @date Thu May  4 19:26:19 2017
  *
  **/
 
@@ -20,22 +20,34 @@ package shepherd
 
 import (
 	"fmt"
-	"testing"
+
+	"github.com/crackcell/kihaadhoo/collections/hashring"
 )
 
 //===================================================================
 // Public APIs
 //===================================================================
 
-func TestMetaGetNodesByFeature(t *testing.T) {
-	nodes := []string{
-		"127.0.0.1:1988",
-		"127.0.0.1:1989",
-		"127.0.0.1:1990",
+type FeatureShard struct {
+	nodes      []string
+	ring       *hashring.HashRing
+	replicaNum int
+}
+
+func NewFeatureShard(nodes []string, replicaNum int) *FeatureShard {
+	return &FeatureShard{
+		nodes:      nodes,
+		ring:       hashring.New(nodes),
+		replicaNum: replicaNum,
 	}
-	key := []int64{1, 2, 3}
-	meta := NewMeta(nodes, 3)
-	fmt.Println(meta.GetNodesByFeature(key))
+}
+
+func (m *FeatureShard) GetNodesByFeature(key []int64) (nodes []string, err error) {
+	if nodes, err = m.ring.GetNodes(fmt.Sprintf("%v", key), m.replicaNum); err != nil {
+		return nodes, nil
+	} else {
+		return nodes, err
+	}
 }
 
 //===================================================================
