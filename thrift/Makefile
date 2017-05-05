@@ -9,8 +9,10 @@
 #
 #===========================================================================
 
-all :
-	thrift -r --out ../ --gen go ./nusadua.thrift
+all : shepherd
+
+shepherd : 
+	thrift -r -I . --out ../ --gen go ./shepherd.thrift
 
 clean :
-	rm -rf ../rpc
+	rm -rf ../shepherd/rpc

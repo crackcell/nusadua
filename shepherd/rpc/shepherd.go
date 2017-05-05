@@ -14,17 +14,16 @@ var _ = math.MinInt32
 var _ = thrift.ZERO
 var _ = fmt.Printf
 
-type ParameterService interface {
+type Shepherd interface {
 	// Parameters:
-	//  - Keys
-	//  - Values
-	Push(keys []int64, values []float64) (ex *ParameterServiceException, err error)
+	//  - Nodes
+	SetNodes(nodes []string) (ex *ShepherdException, err error)
 	// Parameters:
-	//  - Keys
-	Pull(keys []int64) (r []float64, ex *ParameterServiceException, err error)
+	//  - Key
+	GetNodesByFeature(key [][]int64) (r []string, ex *ShepherdException, err error)
 }
 
-type ParameterServiceClient struct {
+type ShepherdClient struct {
 	Transport       thrift.TTransport
 	ProtocolFactory thrift.TProtocolFactory
 	InputProtocol   thrift.TProtocol
@@ -32,8 +31,8 @@ type ParameterServiceClient struct {
 	SeqId           int32
 }
 
-func NewParameterServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *ParameterServiceClient {
-	return &ParameterServiceClient{Transport: t,
+func NewShepherdClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *ShepherdClient {
+	return &ShepherdClient{Transport: t,
 		ProtocolFactory: f,
 		InputProtocol:   f.GetProtocol(t),
 		OutputProtocol:  f.GetProtocol(t),
@@ -41,8 +40,8 @@ func NewParameterServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFac
 	}
 }
 
-func NewParameterServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *ParameterServiceClient {
-	return &ParameterServiceClient{Transport: t,
+func NewShepherdClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *ShepherdClient {
+	return &ShepherdClient{Transport: t,
 		ProtocolFactory: nil,
 		InputProtocol:   iprot,
 		OutputProtocol:  oprot,
@@ -51,33 +50,31 @@ func NewParameterServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtoc
 }
 
 // Parameters:
-//  - Keys
-//  - Values
-func (p *ParameterServiceClient) Push(keys []int64, values []float64) (ex *ParameterServiceException, err error) {
-	if err = p.sendPush(keys, values); err != nil {
+//  - Nodes
+func (p *ShepherdClient) SetNodes(nodes []string) (ex *ShepherdException, err error) {
+	if err = p.sendSetNodes(nodes); err != nil {
 		return
 	}
-	return p.recvPush()
+	return p.recvSetNodes()
 }
 
-func (p *ParameterServiceClient) sendPush(keys []int64, values []float64) (err error) {
+func (p *ShepherdClient) sendSetNodes(nodes []string) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
 		p.OutputProtocol = oprot
 	}
 	p.SeqId++
-	oprot.WriteMessageBegin("push", thrift.CALL, p.SeqId)
-	args0 := NewPushArgs()
-	args0.Keys = keys
-	args0.Values = values
+	oprot.WriteMessageBegin("setNodes", thrift.CALL, p.SeqId)
+	args0 := NewSetNodesArgs()
+	args0.Nodes = nodes
 	err = args0.Write(oprot)
 	oprot.WriteMessageEnd()
 	oprot.Flush()
 	return
 }
 
-func (p *ParameterServiceClient) recvPush() (ex *ParameterServiceException, err error) {
+func (p *ShepherdClient) recvSetNodes() (ex *ShepherdException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -104,7 +101,7 @@ func (p *ParameterServiceClient) recvPush() (ex *ParameterServiceException, err 
 		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ping failed: out of sequence response")
 		return
 	}
-	result1 := NewPushResult()
+	result1 := NewSetNodesResult()
 	err = result1.Read(iprot)
 	iprot.ReadMessageEnd()
 	if result1.Ex != nil {
@@ -114,31 +111,31 @@ func (p *ParameterServiceClient) recvPush() (ex *ParameterServiceException, err 
 }
 
 // Parameters:
-//  - Keys
-func (p *ParameterServiceClient) Pull(keys []int64) (r []float64, ex *ParameterServiceException, err error) {
-	if err = p.sendPull(keys); err != nil {
+//  - Key
+func (p *ShepherdClient) GetNodesByFeature(key [][]int64) (r []string, ex *ShepherdException, err error) {
+	if err = p.sendGetNodesByFeature(key); err != nil {
 		return
 	}
-	return p.recvPull()
+	return p.recvGetNodesByFeature()
 }
 
-func (p *ParameterServiceClient) sendPull(keys []int64) (err error) {
+func (p *ShepherdClient) sendGetNodesByFeature(key [][]int64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
 		p.OutputProtocol = oprot
 	}
 	p.SeqId++
-	oprot.WriteMessageBegin("pull", thrift.CALL, p.SeqId)
-	args4 := NewPullArgs()
-	args4.Keys = keys
+	oprot.WriteMessageBegin("getNodesByFeature", thrift.CALL, p.SeqId)
+	args4 := NewGetNodesByFeatureArgs()
+	args4.Key = key
 	err = args4.Write(oprot)
 	oprot.WriteMessageEnd()
 	oprot.Flush()
 	return
 }
 
-func (p *ParameterServiceClient) recvPull() (value []float64, ex *ParameterServiceException, err error) {
+func (p *ShepherdClient) recvGetNodesByFeature() (value []string, ex *ShepherdException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -165,7 +162,7 @@ func (p *ParameterServiceClient) recvPull() (value []float64, ex *ParameterServi
 		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ping failed: out of sequence response")
 		return
 	}
-	result5 := NewPullResult()
+	result5 := NewGetNodesByFeatureResult()
 	err = result5.Read(iprot)
 	iprot.ReadMessageEnd()
 	value = result5.Success
@@ -175,33 +172,33 @@ func (p *ParameterServiceClient) recvPull() (value []float64, ex *ParameterServi
 	return
 }
 
-type ParameterServiceProcessor struct {
+type ShepherdProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
-	handler      ParameterService
+	handler      Shepherd
 }
 
-func (p *ParameterServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
+func (p *ShepherdProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
 	p.processorMap[key] = processor
 }
 
-func (p *ParameterServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
+func (p *ShepherdProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
 	processor, ok = p.processorMap[key]
 	return processor, ok
 }
 
-func (p *ParameterServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
+func (p *ShepherdProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
 	return p.processorMap
 }
 
-func NewParameterServiceProcessor(handler ParameterService) *ParameterServiceProcessor {
+func NewShepherdProcessor(handler Shepherd) *ShepherdProcessor {
 
-	self8 := &ParameterServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
-	self8.processorMap["push"] = &parameterServiceProcessorPush{handler: handler}
-	self8.processorMap["pull"] = &parameterServiceProcessorPull{handler: handler}
+	self8 := &ShepherdProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
+	self8.processorMap["setNodes"] = &shepherdProcessorSetNodes{handler: handler}
+	self8.processorMap["getNodesByFeature"] = &shepherdProcessorGetNodesByFeature{handler: handler}
 	return self8
 }
 
-func (p *ParameterServiceProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *ShepherdProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	name, _, seqId, err := iprot.ReadMessageBegin()
 	if err != nil {
 		return false, err
@@ -220,32 +217,32 @@ func (p *ParameterServiceProcessor) Process(iprot, oprot thrift.TProtocol) (succ
 
 }
 
-type parameterServiceProcessorPush struct {
-	handler ParameterService
+type shepherdProcessorSetNodes struct {
+	handler Shepherd
 }
 
-func (p *parameterServiceProcessorPush) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := NewPushArgs()
+func (p *shepherdProcessorSetNodes) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := NewSetNodesArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("push", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("setNodes", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
 		return
 	}
 	iprot.ReadMessageEnd()
-	result := NewPushResult()
-	if result.Ex, err = p.handler.Push(args.Keys, args.Values); err != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing push: "+err.Error())
-		oprot.WriteMessageBegin("push", thrift.EXCEPTION, seqId)
+	result := NewSetNodesResult()
+	if result.Ex, err = p.handler.SetNodes(args.Nodes); err != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing setNodes: "+err.Error())
+		oprot.WriteMessageBegin("setNodes", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
 		return
 	}
-	if err2 := oprot.WriteMessageBegin("push", thrift.REPLY, seqId); err2 != nil {
+	if err2 := oprot.WriteMessageBegin("setNodes", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 := result.Write(oprot); err == nil && err2 != nil {
@@ -263,32 +260,32 @@ func (p *parameterServiceProcessorPush) Process(seqId int32, iprot, oprot thrift
 	return true, err
 }
 
-type parameterServiceProcessorPull struct {
-	handler ParameterService
+type shepherdProcessorGetNodesByFeature struct {
+	handler Shepherd
 }
 
-func (p *parameterServiceProcessorPull) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := NewPullArgs()
+func (p *shepherdProcessorGetNodesByFeature) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := NewGetNodesByFeatureArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("pull", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("getNodesByFeature", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
 		return
 	}
 	iprot.ReadMessageEnd()
-	result := NewPullResult()
-	if result.Success, result.Ex, err = p.handler.Pull(args.Keys); err != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing pull: "+err.Error())
-		oprot.WriteMessageBegin("pull", thrift.EXCEPTION, seqId)
+	result := NewGetNodesByFeatureResult()
+	if result.Success, result.Ex, err = p.handler.GetNodesByFeature(args.Key); err != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing getNodesByFeature: "+err.Error())
+		oprot.WriteMessageBegin("getNodesByFeature", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
 		return
 	}
-	if err2 := oprot.WriteMessageBegin("pull", thrift.REPLY, seqId); err2 != nil {
+	if err2 := oprot.WriteMessageBegin("getNodesByFeature", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 := result.Write(oprot); err == nil && err2 != nil {
@@ -308,16 +305,15 @@ func (p *parameterServiceProcessorPull) Process(seqId int32, iprot, oprot thrift
 
 // HELPER FUNCTIONS AND STRUCTURES
 
-type PushArgs struct {
-	Keys   []int64   `thrift:"keys,1"`
-	Values []float64 `thrift:"values,2"`
+type SetNodesArgs struct {
+	Nodes []string `thrift:"nodes,1"`
 }
 
-func NewPushArgs() *PushArgs {
-	return &PushArgs{}
+func NewSetNodesArgs() *SetNodesArgs {
+	return &SetNodesArgs{}
 }
 
-func (p *PushArgs) Read(iprot thrift.TProtocol) error {
+func (p *SetNodesArgs) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return fmt.Errorf("%T read error", p)
 	}
@@ -332,10 +328,6 @@ func (p *PushArgs) Read(iprot thrift.TProtocol) error {
 		switch fieldId {
 		case 1:
 			if err := p.readField1(iprot); err != nil {
-				return err
-			}
-		case 2:
-			if err := p.readField2(iprot); err != nil {
 				return err
 			}
 		default:
@@ -353,20 +345,20 @@ func (p *PushArgs) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PushArgs) readField1(iprot thrift.TProtocol) error {
+func (p *SetNodesArgs) readField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return fmt.Errorf("error reading list being: %s")
 	}
-	p.Keys = make([]int64, 0, size)
+	p.Nodes = make([]string, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem10 int64
-		if v, err := iprot.ReadI64(); err != nil {
+		var _elem10 string
+		if v, err := iprot.ReadString(); err != nil {
 			return fmt.Errorf("error reading field 0: %s")
 		} else {
 			_elem10 = v
 		}
-		p.Keys = append(p.Keys, _elem10)
+		p.Nodes = append(p.Nodes, _elem10)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")
@@ -374,35 +366,11 @@ func (p *PushArgs) readField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PushArgs) readField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return fmt.Errorf("error reading list being: %s")
-	}
-	p.Values = make([]float64, 0, size)
-	for i := 0; i < size; i++ {
-		var _elem11 float64
-		if v, err := iprot.ReadDouble(); err != nil {
-			return fmt.Errorf("error reading field 0: %s")
-		} else {
-			_elem11 = v
-		}
-		p.Values = append(p.Values, _elem11)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
-		return fmt.Errorf("error reading list end: %s")
-	}
-	return nil
-}
-
-func (p *PushArgs) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("push_args"); err != nil {
+func (p *SetNodesArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("setNodes_args"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	if err := p.writeField1(oprot); err != nil {
-		return err
-	}
-	if err := p.writeField2(oprot); err != nil {
 		return err
 	}
 	if err := oprot.WriteFieldStop(); err != nil {
@@ -414,16 +382,16 @@ func (p *PushArgs) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PushArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.Keys != nil {
-		if err := oprot.WriteFieldBegin("keys", thrift.LIST, 1); err != nil {
-			return fmt.Errorf("%T write field begin error 1:keys: %s", p, err)
+func (p *SetNodesArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.Nodes != nil {
+		if err := oprot.WriteFieldBegin("nodes", thrift.LIST, 1); err != nil {
+			return fmt.Errorf("%T write field begin error 1:nodes: %s", p, err)
 		}
-		if err := oprot.WriteListBegin(thrift.I64, len(p.Keys)); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Nodes)); err != nil {
 			return fmt.Errorf("error writing list begin: %s")
 		}
-		for _, v := range p.Keys {
-			if err := oprot.WriteI64(int64(v)); err != nil {
+		for _, v := range p.Nodes {
+			if err := oprot.WriteString(string(v)); err != nil {
 				return fmt.Errorf("%T. (0) field write error: %s", p)
 			}
 		}
@@ -431,51 +399,28 @@ func (p *PushArgs) writeField1(oprot thrift.TProtocol) (err error) {
 			return fmt.Errorf("error writing list end: %s")
 		}
 		if err := oprot.WriteFieldEnd(); err != nil {
-			return fmt.Errorf("%T write field end error 1:keys: %s", p, err)
+			return fmt.Errorf("%T write field end error 1:nodes: %s", p, err)
 		}
 	}
 	return err
 }
 
-func (p *PushArgs) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.Values != nil {
-		if err := oprot.WriteFieldBegin("values", thrift.LIST, 2); err != nil {
-			return fmt.Errorf("%T write field begin error 2:values: %s", p, err)
-		}
-		if err := oprot.WriteListBegin(thrift.DOUBLE, len(p.Values)); err != nil {
-			return fmt.Errorf("error writing list begin: %s")
-		}
-		for _, v := range p.Values {
-			if err := oprot.WriteDouble(float64(v)); err != nil {
-				return fmt.Errorf("%T. (0) field write error: %s", p)
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
-			return fmt.Errorf("error writing list end: %s")
-		}
-		if err := oprot.WriteFieldEnd(); err != nil {
-			return fmt.Errorf("%T write field end error 2:values: %s", p, err)
-		}
-	}
-	return err
-}
-
-func (p *PushArgs) String() string {
+func (p *SetNodesArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("PushArgs(%+v)", *p)
+	return fmt.Sprintf("SetNodesArgs(%+v)", *p)
 }
 
-type PushResult struct {
-	Ex *ParameterServiceException `thrift:"ex,1"`
+type SetNodesResult struct {
+	Ex *ShepherdException `thrift:"ex,1"`
 }
 
-func NewPushResult() *PushResult {
-	return &PushResult{}
+func NewSetNodesResult() *SetNodesResult {
+	return &SetNodesResult{}
 }
 
-func (p *PushResult) Read(iprot thrift.TProtocol) error {
+func (p *SetNodesResult) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return fmt.Errorf("%T read error", p)
 	}
@@ -507,16 +452,16 @@ func (p *PushResult) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PushResult) readField1(iprot thrift.TProtocol) error {
-	p.Ex = NewParameterServiceException()
+func (p *SetNodesResult) readField1(iprot thrift.TProtocol) error {
+	p.Ex = NewShepherdException()
 	if err := p.Ex.Read(iprot); err != nil {
 		return fmt.Errorf("%T error reading struct: %s", p.Ex)
 	}
 	return nil
 }
 
-func (p *PushResult) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("push_result"); err != nil {
+func (p *SetNodesResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("setNodes_result"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	switch {
@@ -534,7 +479,7 @@ func (p *PushResult) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PushResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *SetNodesResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.Ex != nil {
 		if err := oprot.WriteFieldBegin("ex", thrift.STRUCT, 1); err != nil {
 			return fmt.Errorf("%T write field begin error 1:ex: %s", p, err)
@@ -549,22 +494,22 @@ func (p *PushResult) writeField1(oprot thrift.TProtocol) (err error) {
 	return err
 }
 
-func (p *PushResult) String() string {
+func (p *SetNodesResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("PushResult(%+v)", *p)
+	return fmt.Sprintf("SetNodesResult(%+v)", *p)
 }
 
-type PullArgs struct {
-	Keys []int64 `thrift:"keys,1"`
+type GetNodesByFeatureArgs struct {
+	Key [][]int64 `thrift:"key,1"`
 }
 
-func NewPullArgs() *PullArgs {
-	return &PullArgs{}
+func NewGetNodesByFeatureArgs() *GetNodesByFeatureArgs {
+	return &GetNodesByFeatureArgs{}
 }
 
-func (p *PullArgs) Read(iprot thrift.TProtocol) error {
+func (p *GetNodesByFeatureArgs) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return fmt.Errorf("%T read error", p)
 	}
@@ -596,20 +541,31 @@ func (p *PullArgs) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PullArgs) readField1(iprot thrift.TProtocol) error {
+func (p *GetNodesByFeatureArgs) readField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return fmt.Errorf("error reading list being: %s")
 	}
-	p.Keys = make([]int64, 0, size)
+	p.Key = make([][]int64, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem12 int64
-		if v, err := iprot.ReadI64(); err != nil {
-			return fmt.Errorf("error reading field 0: %s")
-		} else {
-			_elem12 = v
+		_, size, err := iprot.ReadListBegin()
+		if err != nil {
+			return fmt.Errorf("error reading list being: %s")
 		}
-		p.Keys = append(p.Keys, _elem12)
+		_elem11 := make([]int64, 0, size)
+		for i := 0; i < size; i++ {
+			var _elem12 int64
+			if v, err := iprot.ReadI64(); err != nil {
+				return fmt.Errorf("error reading field 0: %s")
+			} else {
+				_elem12 = v
+			}
+			_elem11 = append(_elem11, _elem12)
+		}
+		if err := iprot.ReadListEnd(); err != nil {
+			return fmt.Errorf("error reading list end: %s")
+		}
+		p.Key = append(p.Key, _elem11)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")
@@ -617,8 +573,8 @@ func (p *PullArgs) readField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PullArgs) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("pull_args"); err != nil {
+func (p *GetNodesByFeatureArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("getNodesByFeature_args"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	if err := p.writeField1(oprot); err != nil {
@@ -633,46 +589,54 @@ func (p *PullArgs) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PullArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if p.Keys != nil {
-		if err := oprot.WriteFieldBegin("keys", thrift.LIST, 1); err != nil {
-			return fmt.Errorf("%T write field begin error 1:keys: %s", p, err)
+func (p *GetNodesByFeatureArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.Key != nil {
+		if err := oprot.WriteFieldBegin("key", thrift.LIST, 1); err != nil {
+			return fmt.Errorf("%T write field begin error 1:key: %s", p, err)
 		}
-		if err := oprot.WriteListBegin(thrift.I64, len(p.Keys)); err != nil {
+		if err := oprot.WriteListBegin(thrift.LIST, len(p.Key)); err != nil {
 			return fmt.Errorf("error writing list begin: %s")
 		}
-		for _, v := range p.Keys {
-			if err := oprot.WriteI64(int64(v)); err != nil {
-				return fmt.Errorf("%T. (0) field write error: %s", p)
+		for _, v := range p.Key {
+			if err := oprot.WriteListBegin(thrift.I64, len(v)); err != nil {
+				return fmt.Errorf("error writing list begin: %s")
+			}
+			for _, v := range v {
+				if err := oprot.WriteI64(int64(v)); err != nil {
+					return fmt.Errorf("%T. (0) field write error: %s", p)
+				}
+			}
+			if err := oprot.WriteListEnd(); err != nil {
+				return fmt.Errorf("error writing list end: %s")
 			}
 		}
 		if err := oprot.WriteListEnd(); err != nil {
 			return fmt.Errorf("error writing list end: %s")
 		}
 		if err := oprot.WriteFieldEnd(); err != nil {
-			return fmt.Errorf("%T write field end error 1:keys: %s", p, err)
+			return fmt.Errorf("%T write field end error 1:key: %s", p, err)
 		}
 	}
 	return err
 }
 
-func (p *PullArgs) String() string {
+func (p *GetNodesByFeatureArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("PullArgs(%+v)", *p)
+	return fmt.Sprintf("GetNodesByFeatureArgs(%+v)", *p)
 }
 
-type PullResult struct {
-	Success []float64                  `thrift:"success,0"`
-	Ex      *ParameterServiceException `thrift:"ex,1"`
+type GetNodesByFeatureResult struct {
+	Success []string           `thrift:"success,0"`
+	Ex      *ShepherdException `thrift:"ex,1"`
 }
 
-func NewPullResult() *PullResult {
-	return &PullResult{}
+func NewGetNodesByFeatureResult() *GetNodesByFeatureResult {
+	return &GetNodesByFeatureResult{}
 }
 
-func (p *PullResult) Read(iprot thrift.TProtocol) error {
+func (p *GetNodesByFeatureResult) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return fmt.Errorf("%T read error", p)
 	}
@@ -708,15 +672,15 @@ func (p *PullResult) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PullResult) readField0(iprot thrift.TProtocol) error {
+func (p *GetNodesByFeatureResult) readField0(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return fmt.Errorf("error reading list being: %s")
 	}
-	p.Success = make([]float64, 0, size)
+	p.Success = make([]string, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem13 float64
-		if v, err := iprot.ReadDouble(); err != nil {
+		var _elem13 string
+		if v, err := iprot.ReadString(); err != nil {
 			return fmt.Errorf("error reading field 0: %s")
 		} else {
 			_elem13 = v
@@ -729,16 +693,16 @@ func (p *PullResult) readField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PullResult) readField1(iprot thrift.TProtocol) error {
-	p.Ex = NewParameterServiceException()
+func (p *GetNodesByFeatureResult) readField1(iprot thrift.TProtocol) error {
+	p.Ex = NewShepherdException()
 	if err := p.Ex.Read(iprot); err != nil {
 		return fmt.Errorf("%T error reading struct: %s", p.Ex)
 	}
 	return nil
 }
 
-func (p *PullResult) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("pull_result"); err != nil {
+func (p *GetNodesByFeatureResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("getNodesByFeature_result"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	switch {
@@ -760,16 +724,16 @@ func (p *PullResult) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *PullResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *GetNodesByFeatureResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.Success != nil {
 		if err := oprot.WriteFieldBegin("success", thrift.LIST, 0); err != nil {
 			return fmt.Errorf("%T write field begin error 0:success: %s", p, err)
 		}
-		if err := oprot.WriteListBegin(thrift.DOUBLE, len(p.Success)); err != nil {
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.Success)); err != nil {
 			return fmt.Errorf("error writing list begin: %s")
 		}
 		for _, v := range p.Success {
-			if err := oprot.WriteDouble(float64(v)); err != nil {
+			if err := oprot.WriteString(string(v)); err != nil {
 				return fmt.Errorf("%T. (0) field write error: %s", p)
 			}
 		}
@@ -783,7 +747,7 @@ func (p *PullResult) writeField0(oprot thrift.TProtocol) (err error) {
 	return err
 }
 
-func (p *PullResult) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetNodesByFeatureResult) writeField1(oprot thrift.TProtocol) (err error) {
 	if p.Ex != nil {
 		if err := oprot.WriteFieldBegin("ex", thrift.STRUCT, 1); err != nil {
 			return fmt.Errorf("%T write field begin error 1:ex: %s", p, err)
@@ -798,9 +762,9 @@ func (p *PullResult) writeField1(oprot thrift.TProtocol) (err error) {
 	return err
 }
 
-func (p *PullResult) String() string {
+func (p *GetNodesByFeatureResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("PullResult(%+v)", *p)
+	return fmt.Sprintf("GetNodesByFeatureResult(%+v)", *p)
 }
