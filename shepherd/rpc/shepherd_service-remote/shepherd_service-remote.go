@@ -10,8 +10,8 @@ import (
 	"math"
 	"net"
 	"net/url"
+	"nusadua/shepherd/rpc"
 	"os"
-	"shepherd/rpc"
 	"strconv"
 	"strings"
 )
@@ -109,7 +109,7 @@ func main() {
 		Usage()
 		os.Exit(1)
 	}
-	client := rpc.NewShepherdClientFactory(trans, protocolFactory)
+	client := rpc.NewShepherdServiceClientFactory(trans, protocolFactory)
 	if err := trans.Open(); err != nil {
 		fmt.Fprintln(os.Stderr, "Error opening socket to ", host, ":", port, " ", err)
 		os.Exit(1)

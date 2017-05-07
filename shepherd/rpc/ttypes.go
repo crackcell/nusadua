@@ -17,8 +17,8 @@ var _ = fmt.Printf
 var GoUnusedProtection__ int
 
 type ShepherdException struct {
-	Status  int32  `thrift:"status,1"`
-	Message string `thrift:"message,2"`
+	Status  int32  `thrift.git:"status,1"`
+	Message string `thrift.git:"message,2"`
 }
 
 func NewShepherdException() *ShepherdException {

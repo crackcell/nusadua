@@ -14,7 +14,7 @@ var _ = math.MinInt32
 var _ = thrift.ZERO
 var _ = fmt.Printf
 
-type Shepherd interface {
+type ShepherdService interface {
 	// Parameters:
 	//  - Nodes
 	SetNodes(nodes []string) (ex *ShepherdException, err error)
@@ -23,7 +23,7 @@ type Shepherd interface {
 	GetNodesByFeature(key [][]int64) (r []string, ex *ShepherdException, err error)
 }
 
-type ShepherdClient struct {
+type ShepherdServiceClient struct {
 	Transport       thrift.TTransport
 	ProtocolFactory thrift.TProtocolFactory
 	InputProtocol   thrift.TProtocol
@@ -31,8 +31,8 @@ type ShepherdClient struct {
 	SeqId           int32
 }
 
-func NewShepherdClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *ShepherdClient {
-	return &ShepherdClient{Transport: t,
+func NewShepherdServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *ShepherdServiceClient {
+	return &ShepherdServiceClient{Transport: t,
 		ProtocolFactory: f,
 		InputProtocol:   f.GetProtocol(t),
 		OutputProtocol:  f.GetProtocol(t),
@@ -40,8 +40,8 @@ func NewShepherdClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *S
 	}
 }
 
-func NewShepherdClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *ShepherdClient {
-	return &ShepherdClient{Transport: t,
+func NewShepherdServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *ShepherdServiceClient {
+	return &ShepherdServiceClient{Transport: t,
 		ProtocolFactory: nil,
 		InputProtocol:   iprot,
 		OutputProtocol:  oprot,
@@ -51,14 +51,14 @@ func NewShepherdClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, opro
 
 // Parameters:
 //  - Nodes
-func (p *ShepherdClient) SetNodes(nodes []string) (ex *ShepherdException, err error) {
+func (p *ShepherdServiceClient) SetNodes(nodes []string) (ex *ShepherdException, err error) {
 	if err = p.sendSetNodes(nodes); err != nil {
 		return
 	}
 	return p.recvSetNodes()
 }
 
-func (p *ShepherdClient) sendSetNodes(nodes []string) (err error) {
+func (p *ShepherdServiceClient) sendSetNodes(nodes []string) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -74,7 +74,7 @@ func (p *ShepherdClient) sendSetNodes(nodes []string) (err error) {
 	return
 }
 
-func (p *ShepherdClient) recvSetNodes() (ex *ShepherdException, err error) {
+func (p *ShepherdServiceClient) recvSetNodes() (ex *ShepherdException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -112,14 +112,14 @@ func (p *ShepherdClient) recvSetNodes() (ex *ShepherdException, err error) {
 
 // Parameters:
 //  - Key
-func (p *ShepherdClient) GetNodesByFeature(key [][]int64) (r []string, ex *ShepherdException, err error) {
+func (p *ShepherdServiceClient) GetNodesByFeature(key [][]int64) (r []string, ex *ShepherdException, err error) {
 	if err = p.sendGetNodesByFeature(key); err != nil {
 		return
 	}
 	return p.recvGetNodesByFeature()
 }
 
-func (p *ShepherdClient) sendGetNodesByFeature(key [][]int64) (err error) {
+func (p *ShepherdServiceClient) sendGetNodesByFeature(key [][]int64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -135,7 +135,7 @@ func (p *ShepherdClient) sendGetNodesByFeature(key [][]int64) (err error) {
 	return
 }
 
-func (p *ShepherdClient) recvGetNodesByFeature() (value []string, ex *ShepherdException, err error) {
+func (p *ShepherdServiceClient) recvGetNodesByFeature() (value []string, ex *ShepherdException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -172,33 +172,33 @@ func (p *ShepherdClient) recvGetNodesByFeature() (value []string, ex *ShepherdEx
 	return
 }
 
-type ShepherdProcessor struct {
+type ShepherdServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
-	handler      Shepherd
+	handler      ShepherdService
 }
 
-func (p *ShepherdProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
+func (p *ShepherdServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
 	p.processorMap[key] = processor
 }
 
-func (p *ShepherdProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
+func (p *ShepherdServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
 	processor, ok = p.processorMap[key]
 	return processor, ok
 }
 
-func (p *ShepherdProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
+func (p *ShepherdServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
 	return p.processorMap
 }
 
-func NewShepherdProcessor(handler Shepherd) *ShepherdProcessor {
+func NewShepherdServiceProcessor(handler ShepherdService) *ShepherdServiceProcessor {
 
-	self8 := &ShepherdProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
-	self8.processorMap["setNodes"] = &shepherdProcessorSetNodes{handler: handler}
-	self8.processorMap["getNodesByFeature"] = &shepherdProcessorGetNodesByFeature{handler: handler}
+	self8 := &ShepherdServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
+	self8.processorMap["setNodes"] = &shepherdServiceProcessorSetNodes{handler: handler}
+	self8.processorMap["getNodesByFeature"] = &shepherdServiceProcessorGetNodesByFeature{handler: handler}
 	return self8
 }
 
-func (p *ShepherdProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *ShepherdServiceProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	name, _, seqId, err := iprot.ReadMessageBegin()
 	if err != nil {
 		return false, err
@@ -217,11 +217,11 @@ func (p *ShepherdProcessor) Process(iprot, oprot thrift.TProtocol) (success bool
 
 }
 
-type shepherdProcessorSetNodes struct {
-	handler Shepherd
+type shepherdServiceProcessorSetNodes struct {
+	handler ShepherdService
 }
 
-func (p *shepherdProcessorSetNodes) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *shepherdServiceProcessorSetNodes) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewSetNodesArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -260,11 +260,11 @@ func (p *shepherdProcessorSetNodes) Process(seqId int32, iprot, oprot thrift.TPr
 	return true, err
 }
 
-type shepherdProcessorGetNodesByFeature struct {
-	handler Shepherd
+type shepherdServiceProcessorGetNodesByFeature struct {
+	handler ShepherdService
 }
 
-func (p *shepherdProcessorGetNodesByFeature) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *shepherdServiceProcessorGetNodesByFeature) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewGetNodesByFeatureArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -306,7 +306,7 @@ func (p *shepherdProcessorGetNodesByFeature) Process(seqId int32, iprot, oprot t
 // HELPER FUNCTIONS AND STRUCTURES
 
 type SetNodesArgs struct {
-	Nodes []string `thrift:"nodes,1"`
+	Nodes []string `thrift.git:"nodes,1"`
 }
 
 func NewSetNodesArgs() *SetNodesArgs {
@@ -413,7 +413,7 @@ func (p *SetNodesArgs) String() string {
 }
 
 type SetNodesResult struct {
-	Ex *ShepherdException `thrift:"ex,1"`
+	Ex *ShepherdException `thrift.git:"ex,1"`
 }
 
 func NewSetNodesResult() *SetNodesResult {
@@ -502,7 +502,7 @@ func (p *SetNodesResult) String() string {
 }
 
 type GetNodesByFeatureArgs struct {
-	Key [][]int64 `thrift:"key,1"`
+	Key [][]int64 `thrift.git:"key,1"`
 }
 
 func NewGetNodesByFeatureArgs() *GetNodesByFeatureArgs {
@@ -628,8 +628,8 @@ func (p *GetNodesByFeatureArgs) String() string {
 }
 
 type GetNodesByFeatureResult struct {
-	Success []string           `thrift:"success,0"`
-	Ex      *ShepherdException `thrift:"ex,1"`
+	Success []string           `thrift.git:"success,0"`
+	Ex      *ShepherdException `thrift.git:"ex,1"`
 }
 
 func NewGetNodesByFeatureResult() *GetNodesByFeatureResult {
