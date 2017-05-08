@@ -14,16 +14,16 @@ var _ = math.MinInt32
 var _ = thrift.ZERO
 var _ = fmt.Printf
 
-type ShepherdService interface {
+type RouterService interface {
 	// Parameters:
 	//  - Nodes
-	SetNodes(nodes []string) (ex *ShepherdException, err error)
+	SetNodes(nodes []string) (ex *RouterException, err error)
 	// Parameters:
 	//  - Key
-	GetNodesByFeature(key []int64) (r []string, ex *ShepherdException, err error)
+	GetNodesByFeature(key []int64) (r []string, ex *RouterException, err error)
 }
 
-type ShepherdServiceClient struct {
+type RouterServiceClient struct {
 	Transport       thrift.TTransport
 	ProtocolFactory thrift.TProtocolFactory
 	InputProtocol   thrift.TProtocol
@@ -31,8 +31,8 @@ type ShepherdServiceClient struct {
 	SeqId           int32
 }
 
-func NewShepherdServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *ShepherdServiceClient {
-	return &ShepherdServiceClient{Transport: t,
+func NewRouterServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *RouterServiceClient {
+	return &RouterServiceClient{Transport: t,
 		ProtocolFactory: f,
 		InputProtocol:   f.GetProtocol(t),
 		OutputProtocol:  f.GetProtocol(t),
@@ -40,8 +40,8 @@ func NewShepherdServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFact
 	}
 }
 
-func NewShepherdServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *ShepherdServiceClient {
-	return &ShepherdServiceClient{Transport: t,
+func NewRouterServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *RouterServiceClient {
+	return &RouterServiceClient{Transport: t,
 		ProtocolFactory: nil,
 		InputProtocol:   iprot,
 		OutputProtocol:  oprot,
@@ -51,14 +51,14 @@ func NewShepherdServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtoco
 
 // Parameters:
 //  - Nodes
-func (p *ShepherdServiceClient) SetNodes(nodes []string) (ex *ShepherdException, err error) {
+func (p *RouterServiceClient) SetNodes(nodes []string) (ex *RouterException, err error) {
 	if err = p.sendSetNodes(nodes); err != nil {
 		return
 	}
 	return p.recvSetNodes()
 }
 
-func (p *ShepherdServiceClient) sendSetNodes(nodes []string) (err error) {
+func (p *RouterServiceClient) sendSetNodes(nodes []string) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -74,7 +74,7 @@ func (p *ShepherdServiceClient) sendSetNodes(nodes []string) (err error) {
 	return
 }
 
-func (p *ShepherdServiceClient) recvSetNodes() (ex *ShepherdException, err error) {
+func (p *RouterServiceClient) recvSetNodes() (ex *RouterException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -112,14 +112,14 @@ func (p *ShepherdServiceClient) recvSetNodes() (ex *ShepherdException, err error
 
 // Parameters:
 //  - Key
-func (p *ShepherdServiceClient) GetNodesByFeature(key []int64) (r []string, ex *ShepherdException, err error) {
+func (p *RouterServiceClient) GetNodesByFeature(key []int64) (r []string, ex *RouterException, err error) {
 	if err = p.sendGetNodesByFeature(key); err != nil {
 		return
 	}
 	return p.recvGetNodesByFeature()
 }
 
-func (p *ShepherdServiceClient) sendGetNodesByFeature(key []int64) (err error) {
+func (p *RouterServiceClient) sendGetNodesByFeature(key []int64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -135,7 +135,7 @@ func (p *ShepherdServiceClient) sendGetNodesByFeature(key []int64) (err error) {
 	return
 }
 
-func (p *ShepherdServiceClient) recvGetNodesByFeature() (value []string, ex *ShepherdException, err error) {
+func (p *RouterServiceClient) recvGetNodesByFeature() (value []string, ex *RouterException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -172,33 +172,33 @@ func (p *ShepherdServiceClient) recvGetNodesByFeature() (value []string, ex *She
 	return
 }
 
-type ShepherdServiceProcessor struct {
+type RouterServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
-	handler      ShepherdService
+	handler      RouterService
 }
 
-func (p *ShepherdServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
+func (p *RouterServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
 	p.processorMap[key] = processor
 }
 
-func (p *ShepherdServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
+func (p *RouterServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
 	processor, ok = p.processorMap[key]
 	return processor, ok
 }
 
-func (p *ShepherdServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
+func (p *RouterServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
 	return p.processorMap
 }
 
-func NewShepherdServiceProcessor(handler ShepherdService) *ShepherdServiceProcessor {
+func NewRouterServiceProcessor(handler RouterService) *RouterServiceProcessor {
 
-	self8 := &ShepherdServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
-	self8.processorMap["setNodes"] = &shepherdServiceProcessorSetNodes{handler: handler}
-	self8.processorMap["getNodesByFeature"] = &shepherdServiceProcessorGetNodesByFeature{handler: handler}
+	self8 := &RouterServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
+	self8.processorMap["setNodes"] = &routerServiceProcessorSetNodes{handler: handler}
+	self8.processorMap["getNodesByFeature"] = &routerServiceProcessorGetNodesByFeature{handler: handler}
 	return self8
 }
 
-func (p *ShepherdServiceProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *RouterServiceProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	name, _, seqId, err := iprot.ReadMessageBegin()
 	if err != nil {
 		return false, err
@@ -217,11 +217,11 @@ func (p *ShepherdServiceProcessor) Process(iprot, oprot thrift.TProtocol) (succe
 
 }
 
-type shepherdServiceProcessorSetNodes struct {
-	handler ShepherdService
+type routerServiceProcessorSetNodes struct {
+	handler RouterService
 }
 
-func (p *shepherdServiceProcessorSetNodes) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *routerServiceProcessorSetNodes) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewSetNodesArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -260,11 +260,11 @@ func (p *shepherdServiceProcessorSetNodes) Process(seqId int32, iprot, oprot thr
 	return true, err
 }
 
-type shepherdServiceProcessorGetNodesByFeature struct {
-	handler ShepherdService
+type routerServiceProcessorGetNodesByFeature struct {
+	handler RouterService
 }
 
-func (p *shepherdServiceProcessorGetNodesByFeature) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *routerServiceProcessorGetNodesByFeature) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewGetNodesByFeatureArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -413,7 +413,7 @@ func (p *SetNodesArgs) String() string {
 }
 
 type SetNodesResult struct {
-	Ex *ShepherdException `thrift:"ex,1"`
+	Ex *RouterException `thrift:"ex,1"`
 }
 
 func NewSetNodesResult() *SetNodesResult {
@@ -453,7 +453,7 @@ func (p *SetNodesResult) Read(iprot thrift.TProtocol) error {
 }
 
 func (p *SetNodesResult) readField1(iprot thrift.TProtocol) error {
-	p.Ex = NewShepherdException()
+	p.Ex = NewRouterException()
 	if err := p.Ex.Read(iprot); err != nil {
 		return fmt.Errorf("%T error reading struct: %s", p.Ex)
 	}
@@ -609,8 +609,8 @@ func (p *GetNodesByFeatureArgs) String() string {
 }
 
 type GetNodesByFeatureResult struct {
-	Success []string           `thrift:"success,0"`
-	Ex      *ShepherdException `thrift:"ex,1"`
+	Success []string         `thrift:"success,0"`
+	Ex      *RouterException `thrift:"ex,1"`
 }
 
 func NewGetNodesByFeatureResult() *GetNodesByFeatureResult {
@@ -675,7 +675,7 @@ func (p *GetNodesByFeatureResult) readField0(iprot thrift.TProtocol) error {
 }
 
 func (p *GetNodesByFeatureResult) readField1(iprot thrift.TProtocol) error {
-	p.Ex = NewShepherdException()
+	p.Ex = NewRouterException()
 	if err := p.Ex.Read(iprot); err != nil {
 		return fmt.Errorf("%T error reading struct: %s", p.Ex)
 	}

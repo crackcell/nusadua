@@ -8,7 +8,7 @@ log:
   stat_log_path: ./log/stat.log
   stat_log_level: debug
 
-shepherd:
+router:
   host: 127.0.0.1
   port: 1988
-  data_replica_num: 3
+  replica_num: 3

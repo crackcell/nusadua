@@ -42,8 +42,8 @@ var (
 )
 
 type Config struct {
-	LogConfig      LogConfig      `yaml:"log"`
-	ShepherdConfig ShepherdConfig `yaml:"shepherd"`
+	LogConfig    LogConfig    `yaml:"log"`
+	RouterConfig RouterConfig `yaml:"router"`
 }
 
 type LogConfig struct {
@@ -55,10 +55,10 @@ type LogConfig struct {
 	StatLogLevel   string `yaml:"stat_log_level"`
 }
 
-type ShepherdConfig struct {
-	Host           string `yaml:"host"`
-	Port           int    `yaml:"port"`
-	DataReplicaNum int    `yaml:"data_replica_num"`
+type RouterConfig struct {
+	Host       string `yaml:"host"`
+	Port       int    `yaml:"port"`
+	ReplicaNum int    `yaml:"replica_num"`
 }
 
 var GlobalConfig = &Config{}
@@ -83,7 +83,7 @@ func Init() {
 		ShowHelp(1)
 	}
 
-	if len(Role) == 0 && Role != "shepherd" && Role != "server" {
+	if len(Role) == 0 && Role != "router" && Role != "server" {
 		fmt.Println("wrong argument: --role")
 		ShowHelp(1)
 	}
@@ -117,7 +117,7 @@ Options:
     -h, --help         Print this message
     -v, --verbose      Use verbose output
 
-    -r, --role         Node role: shepherd or server, default: server
+    -r, --role         Node role: router or server, default: server
     -c, --config       Config file path
 `
 )

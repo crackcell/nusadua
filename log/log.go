@@ -8,7 +8,7 @@
  **************************************************************/
 
 /**
- * 
+ *
  *
  * @file log.go
  * @author Menglong TAN <tanmenglong@gmail.com>
@@ -19,8 +19,8 @@
 package log
 
 import (
-	"github.com/crackcell/nusadua/config"
 	"github.com/Sirupsen/logrus"
+	"github.com/crackcell/nusadua/config"
 	"os"
 )
 

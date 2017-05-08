@@ -15,3 +15,4 @@ all :
 
 clean :
 	make clean -C thrift
+	rm -rf nusadua

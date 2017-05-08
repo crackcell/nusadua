@@ -16,14 +16,14 @@
  *
  **/
 
-package shepherd
+package router
 
 import (
-	"github.com/crackcell/nusadua/shepherd/rpc"
-	"git.apache.org/thrift.git/lib/go/thrift"
 	"fmt"
-	"sync"
+	"git.apache.org/thrift.git/lib/go/thrift"
 	"github.com/crackcell/nusadua/config"
+	"github.com/crackcell/nusadua/router/rpc"
+	"sync"
 )
 
 //===================================================================
@@ -31,18 +31,18 @@ import (
 //===================================================================
 
 type Rpc struct {
-	lock *sync.Mutex
-	started bool
-	server *thrift.TSimpleServer
-	stop chan bool
+	lock         *sync.Mutex
+	started      bool
+	server       *thrift.TSimpleServer
+	stop         chan bool
 	featureShard *FeatureShard
 }
 
 func NewRpc() *Rpc {
 	return &Rpc{
-		lock: new(sync.Mutex),
-		started: false,
-		stop: make(chan bool),
+		lock:         new(sync.Mutex),
+		started:      false,
+		stop:         make(chan bool),
 		featureShard: NewFeatureShard([]string{}, 3),
 	}
 }
@@ -59,7 +59,7 @@ func (this *Rpc) Start(host string, port int) (err error) {
 		return err
 	}
 
-	processorFactory := thrift.NewTProcessorFactory(rpc.NewShepherdServiceProcessor(this))
+	processorFactory := thrift.NewTProcessorFactory(rpc.NewRouterServiceProcessor(this))
 
 	this.server = thrift.NewTSimpleServerFactory4(processorFactory, serverTransport, transportFactory, protocolFactory)
 	go func() {
@@ -88,17 +88,17 @@ func (this *Rpc) Wait() {
 	if !this.started {
 		return
 	}
-	<- this.stop
+	<-this.stop
 }
 
-func (this *Rpc) SetNodes(nodes []string) (ex *rpc.ShepherdException, err error) {
-	this.featureShard.SetNodes(nodes, config.GlobalConfig.ShepherdConfig.DataReplicaNum)
+func (this *Rpc) SetNodes(nodes []string) (ex *rpc.RouterException, err error) {
+	this.featureShard.SetNodes(nodes, config.GlobalConfig.RouterConfig.ReplicaNum)
 	return nil, nil
 }
 
-func (this *Rpc) GetNodesByFeature(key []int64) (r []string, ex *rpc.ShepherdException, err error) {
+func (this *Rpc) GetNodesByFeature(key []int64) (r []string, ex *rpc.RouterException, err error) {
 	if nodes, err := this.featureShard.GetNodesByFeature(key); err != nil {
-		ex := rpc.NewShepherdException()
+		ex := rpc.NewRouterException()
 		ex.Message = err.Error()
 		ex.Status = 1
 		return nodes, ex, err

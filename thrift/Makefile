@@ -12,7 +12,7 @@
 all : shepherd
 
 shepherd : 
-	thrift -r -I . --out ../../ --gen go ./shepherd.thrift
+	thrift -r -I . --out ../../ --gen go ./router.thrift
 
 clean :
-	rm -rf ../../nusadua/shepherd/rpc
+	rm -rf ../../nusadua/router/rpc

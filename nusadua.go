@@ -26,7 +26,7 @@ import (
 	"github.com/crackcell/kihaadhoo/signal"
 	"github.com/crackcell/nusadua/config"
 	"github.com/crackcell/nusadua/log"
-	"github.com/crackcell/nusadua/shepherd"
+	"github.com/crackcell/nusadua/router"
 )
 
 //===================================================================
@@ -43,13 +43,13 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	sheperdRpc := shepherd.NewRpc()
-	sheperdRpc.Start(config.GlobalConfig.ShepherdConfig.Host, config.GlobalConfig.ShepherdConfig.Port)
+	routerRpc := router.NewRpc()
+	routerRpc.Start(config.GlobalConfig.RouterConfig.Host, config.GlobalConfig.RouterConfig.Port)
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		sheperdRpc.Wait()
+		routerRpc.Wait()
 	}()
 
 	// init signal handlers
@@ -59,7 +59,7 @@ func main() {
 		log.AppLog.Infof("received signal: %v", s)
 		if s == syscall.SIGTERM {
 			log.AppLog.Infof("signal terminate received, exited normally")
-			sheperdRpc.Stop()
+			routerRpc.Stop()
 		}
 	}
 	sset.Register(syscall.SIGINT, cleanup)

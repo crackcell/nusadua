@@ -16,7 +16,7 @@
  *
  **/
 
-package shepherd
+package router
 
 import (
 	"fmt"
