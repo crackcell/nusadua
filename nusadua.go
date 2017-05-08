@@ -19,13 +19,14 @@
 package main
 
 import (
-	"github.com/crackcell/nusadua/log"
-	"github.com/crackcell/nusadua/config"
-	"github.com/crackcell/nusadua/shepherd"
-	"github.com/crackcell/kihaadhoo/signal"
-	"sync"
 	"os"
+	"sync"
 	"syscall"
+
+	"github.com/crackcell/kihaadhoo/signal"
+	"github.com/crackcell/nusadua/config"
+	"github.com/crackcell/nusadua/log"
+	"github.com/crackcell/nusadua/shepherd"
 )
 
 //===================================================================
