@@ -1,5 +1,5 @@
 # Author:  Menglong TAN <tanmenglong@gmail.com>
-# Date:    Tue May  2 20:47:23 2017
+# Date:    Tue May  9 00:48:04 2017
 #
 # Make Target:
 # ------------
@@ -9,10 +9,10 @@
 #
 #===========================================================================
 
-all : shepherd
-
-shepherd : 
-	thrift -r -I . --out ../../ --gen go ./router.thrift
+all :
+	make -C thrift
+	go build
 
 clean :
-	rm -rf ../../nusadua/router/rpc
+	make clean -C thrift
+	rm -rf nusadua

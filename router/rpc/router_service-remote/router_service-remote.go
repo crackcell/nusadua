@@ -10,8 +10,8 @@ import (
 	"math"
 	"net"
 	"net/url"
+	"nusadua/router/rpc"
 	"os"
-	"rpc"
 	"strconv"
 	"strings"
 )
@@ -20,8 +20,8 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "Usage of ", os.Args[0], " [-h host:port] [-u url] [-f[ramed]] function [arg1 [arg2...]]:")
 	flag.PrintDefaults()
 	fmt.Fprintln(os.Stderr, "\nFunctions:")
-	fmt.Fprintln(os.Stderr, "  void push( keys,  values)")
-	fmt.Fprintln(os.Stderr, "   pull( keys)")
+	fmt.Fprintln(os.Stderr, "  void setNodes( nodes)")
+	fmt.Fprintln(os.Stderr, "   getNodesByFeature( key)")
 	fmt.Fprintln(os.Stderr)
 	os.Exit(0)
 }
@@ -109,81 +109,63 @@ func main() {
 		Usage()
 		os.Exit(1)
 	}
-	client := rpc.NewParameterServiceClientFactory(trans, protocolFactory)
+	client := rpc.NewRouterServiceClientFactory(trans, protocolFactory)
 	if err := trans.Open(); err != nil {
 		fmt.Fprintln(os.Stderr, "Error opening socket to ", host, ":", port, " ", err)
 		os.Exit(1)
 	}
 
 	switch cmd {
-	case "push":
-		if flag.NArg()-1 != 2 {
-			fmt.Fprintln(os.Stderr, "Push requires 2 args")
+	case "setNodes":
+		if flag.NArg()-1 != 1 {
+			fmt.Fprintln(os.Stderr, "SetNodes requires 1 args")
 			flag.Usage()
 		}
-		arg14 := flag.Arg(1)
-		mbTrans15 := thrift.NewTMemoryBufferLen(len(arg14))
-		defer mbTrans15.Close()
-		_, err16 := mbTrans15.WriteString(arg14)
-		if err16 != nil {
+		arg13 := flag.Arg(1)
+		mbTrans14 := thrift.NewTMemoryBufferLen(len(arg13))
+		defer mbTrans14.Close()
+		_, err15 := mbTrans14.WriteString(arg13)
+		if err15 != nil {
 			Usage()
 			return
 		}
-		factory17 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt18 := factory17.GetProtocol(mbTrans15)
-		containerStruct0 := rpc.NewPushArgs()
-		err19 := containerStruct0.ReadField1(jsProt18)
-		if err19 != nil {
+		factory16 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt17 := factory16.GetProtocol(mbTrans14)
+		containerStruct0 := rpc.NewSetNodesArgs()
+		err18 := containerStruct0.ReadField1(jsProt17)
+		if err18 != nil {
 			Usage()
 			return
 		}
-		argvalue0 := containerStruct0.Keys
+		argvalue0 := containerStruct0.Nodes
 		value0 := argvalue0
-		arg20 := flag.Arg(2)
-		mbTrans21 := thrift.NewTMemoryBufferLen(len(arg20))
-		defer mbTrans21.Close()
-		_, err22 := mbTrans21.WriteString(arg20)
-		if err22 != nil {
-			Usage()
-			return
-		}
-		factory23 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt24 := factory23.GetProtocol(mbTrans21)
-		containerStruct1 := rpc.NewPushArgs()
-		err25 := containerStruct1.ReadField2(jsProt24)
-		if err25 != nil {
-			Usage()
-			return
-		}
-		argvalue1 := containerStruct1.Values
-		value1 := argvalue1
-		fmt.Print(client.Push(value0, value1))
+		fmt.Print(client.SetNodes(value0))
 		fmt.Print("\n")
 		break
-	case "pull":
+	case "getNodesByFeature":
 		if flag.NArg()-1 != 1 {
-			fmt.Fprintln(os.Stderr, "Pull requires 1 args")
+			fmt.Fprintln(os.Stderr, "GetNodesByFeature requires 1 args")
 			flag.Usage()
 		}
-		arg26 := flag.Arg(1)
-		mbTrans27 := thrift.NewTMemoryBufferLen(len(arg26))
-		defer mbTrans27.Close()
-		_, err28 := mbTrans27.WriteString(arg26)
-		if err28 != nil {
+		arg19 := flag.Arg(1)
+		mbTrans20 := thrift.NewTMemoryBufferLen(len(arg19))
+		defer mbTrans20.Close()
+		_, err21 := mbTrans20.WriteString(arg19)
+		if err21 != nil {
 			Usage()
 			return
 		}
-		factory29 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt30 := factory29.GetProtocol(mbTrans27)
-		containerStruct0 := rpc.NewPullArgs()
-		err31 := containerStruct0.ReadField1(jsProt30)
-		if err31 != nil {
+		factory22 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt23 := factory22.GetProtocol(mbTrans20)
+		containerStruct0 := rpc.NewGetNodesByFeatureArgs()
+		err24 := containerStruct0.ReadField1(jsProt23)
+		if err24 != nil {
 			Usage()
 			return
 		}
-		argvalue0 := containerStruct0.Keys
+		argvalue0 := containerStruct0.Key
 		value0 := argvalue0
-		fmt.Print(client.Pull(value0))
+		fmt.Print(client.GetNodesByFeature(value0))
 		fmt.Print("\n")
 		break
 	case "":

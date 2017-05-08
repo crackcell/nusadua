@@ -10,22 +10,34 @@
 /**
  *
  *
- * @file rpc_server.go
+ * @file feature_shard_test.go
  * @author Menglong TAN <tanmenglong@gmail.com>
- * @date Wed May  3 14:54:44 2017
+ * @date Thu May  4 19:48:51 2017
  *
  **/
 
-package server
+package router
+
+import (
+	"fmt"
+	"testing"
+)
 
 //===================================================================
 // Public APIs
 //===================================================================
 
+func TestMetaGetNodesByFeature(t *testing.T) {
+	nodes := []string{
+		"127.0.0.1:1988",
+		"127.0.0.1:1989",
+		"127.0.0.1:1990",
+	}
+	key := []int64{1, 2, 3}
+	meta := NewFeatureShard(nodes, 3)
+	fmt.Println(meta.GetNodesByFeature(key))
+}
+
 //===================================================================
 // Private
 //===================================================================
-
-func main() {
-
-}
