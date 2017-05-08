@@ -18,7 +18,12 @@
 
 package main
 
-import "github.com/crackcell/nusadua/config"
+import (
+	"github.com/crackcell/kihaadhoo/log"
+	"github.com/crackcell/nusadua/config"
+	"github.com/crackcell/nusadua/shepherd"
+	"sync"
+)
 
 //===================================================================
 // Public APIs
@@ -29,5 +34,20 @@ import "github.com/crackcell/nusadua/config"
 //===================================================================
 
 func main() {
-	config.Parse()
+	config.Init()
+	log.Init()
+
+	var wg sync.WaitGroup
+
+	sheperdRpc := shepherd.NewRpc()
+	sheperdRpc.Start(config.GlobalConfig.ShepherdConfig.Host, config.GlobalConfig.ShepherdConfig.Port)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		sheperdRpc.Wait()
+	}()
+
+	log.Infof("started as %s", config.Role)
+	wg.Wait()
 }

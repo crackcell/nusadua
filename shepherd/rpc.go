@@ -22,6 +22,7 @@ import (
 	"github.com/crackcell/nusadua/shepherd/rpc"
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"fmt"
+	"sync"
 )
 
 //===================================================================
@@ -29,22 +30,28 @@ import (
 //===================================================================
 
 type Rpc struct {
-	host string
-	port int
+	lock *sync.Mutex
+	started bool
 	server *thrift.TSimpleServer
 	stop chan bool
 }
 
 func NewRpc() *Rpc {
 	return &Rpc{
+		lock: new(sync.Mutex),
+		started: false,
 		stop: make(chan bool),
 	}
 }
 
-func (this *Rpc) Start(addr string, port int) (err error) {
+func (this *Rpc) Start(host string, port int) (err error) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+
 	transportFactory := thrift.NewTFramedTransportFactory(thrift.NewTTransportFactory())
 	protocolFactory := thrift.NewTBinaryProtocolFactoryDefault()
-	serverTransport, err := thrift.NewTServerSocket(fmt.Sprintf("%s:%d", this.host, this.port))
+	addr := fmt.Sprintf("%s:%d", host, port)
+	serverTransport, err := thrift.NewTServerSocket(addr)
 	if err != nil {
 		return err
 	}
@@ -56,14 +63,28 @@ func (this *Rpc) Start(addr string, port int) (err error) {
 		this.server.Serve()
 		this.stop <- true
 	}()
+
+	this.started = true
 	return nil
 }
 
-func (this *Rpc) Stop() error {
-	return this.server.Stop()
+func (this *Rpc) Stop() (err error) {
+	this.lock.Lock()
+	defer this.lock.Unlock()
+	if !this.started {
+		return nil
+	}
+	if err = this.server.Stop(); err != nil {
+		return err
+	}
+	this.started = false
+	return nil
 }
 
 func (this *Rpc) Wait() {
+	if !this.started {
+		return
+	}
 	<- this.stop
 }
 

@@ -42,21 +42,26 @@ var (
 )
 
 type Config struct {
+	LogLevel       string         `yaml:"log_level"`
+	ShepherdConfig ShepherdConfig `yaml:"shepherd"`
+}
+
+type ShepherdConfig struct {
 	Host           string `yaml:"host"`
 	Port           int    `yaml:"port"`
 	DataReplicaNum int    `yaml:"data_replica_num"`
 }
 
-var Conf = &Config{}
+var GlobalConfig = &Config{}
 
-func Parse() {
+func Init() {
 	flag.BoolVar(&Help, "help", false, "Print help message")
 	flag.BoolVar(&Help, "h", false, "Print help message")
 	flag.BoolVar(&Verbose, "verbose", false, "Use verbose output")
 	flag.BoolVar(&Verbose, "v", false, "Use verbose output")
 
-	flag.StringVar(&ConfigFile, "r", "follwer", "Node role")
-	flag.StringVar(&ConfigFile, "role", "follwer", "Node role")
+	flag.StringVar(&Role, "r", "server", "Node role")
+	flag.StringVar(&Role, "role", "server", "Node role")
 	flag.StringVar(&ConfigFile, "c", "", "Config file")
 	flag.StringVar(&ConfigFile, "config", "", "Config file")
 
@@ -65,6 +70,12 @@ func Parse() {
 		ShowHelp(0)
 	}
 	if len(ConfigFile) == 0 {
+		fmt.Println("wrong argument: --config")
+		ShowHelp(1)
+	}
+
+	if len(Role) == 0 && Role != "shepherd" && Role != "server" {
+		fmt.Println("wrong argument: --role")
 		ShowHelp(1)
 	}
 
@@ -74,11 +85,10 @@ func Parse() {
 		panic(err)
 	}
 
-	err = yaml.Unmarshal(yamlFile, &Conf)
+	err = yaml.Unmarshal(yamlFile, &GlobalConfig)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%#v\n", Conf)
 }
 
 //===================================================================
@@ -98,7 +108,7 @@ Options:
     -h, --help         Print this message
     -v, --verbose      Use verbose output
 
-    -r, --role         Node role: leader or follower, default: follower
+    -r, --role         Node role: shepherd or server, default: server
 	-c, --config       Config file path
 `
 )

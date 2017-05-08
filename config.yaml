@@ -1,3 +1,5 @@
-host: 127.0.0.1
-port: 1988
-data_replica_num: 3
+log_level: debug
+shepherd:
+  host: 127.0.0.1
+  port: 1988
+  data_replica_num: 3

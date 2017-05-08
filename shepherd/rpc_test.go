@@ -30,7 +30,7 @@ import (
 
 func TestRpc(t *testing.T) {
 	r := NewRpc()
-	r.Start("127.0.0.1", 12345)
+	r.Start("127.0.0.1", 9099)
 	go func() {
 		for i := 1; i <= 5; i++ {
 			fmt.Println("waiting", i)
