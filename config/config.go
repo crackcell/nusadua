@@ -118,7 +118,7 @@ Options:
     -v, --verbose      Use verbose output
 
     -r, --role         Node role: shepherd or server, default: server
-	-c, --config       Config file path
+    -c, --config       Config file path
 `
 )
 
