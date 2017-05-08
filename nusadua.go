@@ -19,10 +19,13 @@
 package main
 
 import (
-	"github.com/crackcell/kihaadhoo/log"
+	"github.com/crackcell/nusadua/log"
 	"github.com/crackcell/nusadua/config"
 	"github.com/crackcell/nusadua/shepherd"
+	"github.com/crackcell/kihaadhoo/signal"
 	"sync"
+	"os"
+	"syscall"
 )
 
 //===================================================================
@@ -48,6 +51,24 @@ func main() {
 		sheperdRpc.Wait()
 	}()
 
-	log.Infof("started as %s", config.Role)
+	// init signal handlers
+	sset := signal.NewSignalHandlerSet()
+
+	cleanup := func(s os.Signal, arg interface{}) {
+		log.AppLog.Infof("received signal: %v", s)
+		if s == syscall.SIGTERM {
+			log.AppLog.Infof("signal terminate received, exited normally")
+			sheperdRpc.Stop()
+		}
+	}
+	sset.Register(syscall.SIGINT, cleanup)
+	sset.Register(syscall.SIGUSR1, cleanup)
+	sset.Register(syscall.SIGUSR2, cleanup)
+	sset.Register(syscall.SIGTERM, cleanup)
+
+	sset.Start()
+
+	// wait for finish
+	log.AppLog.Infof("started as %s", config.Role)
 	wg.Wait()
 }

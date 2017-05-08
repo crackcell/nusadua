@@ -121,19 +121,19 @@ func main() {
 			fmt.Fprintln(os.Stderr, "SetNodes requires 1 args")
 			flag.Usage()
 		}
-		arg14 := flag.Arg(1)
-		mbTrans15 := thrift.NewTMemoryBufferLen(len(arg14))
-		defer mbTrans15.Close()
-		_, err16 := mbTrans15.WriteString(arg14)
-		if err16 != nil {
+		arg13 := flag.Arg(1)
+		mbTrans14 := thrift.NewTMemoryBufferLen(len(arg13))
+		defer mbTrans14.Close()
+		_, err15 := mbTrans14.WriteString(arg13)
+		if err15 != nil {
 			Usage()
 			return
 		}
-		factory17 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt18 := factory17.GetProtocol(mbTrans15)
+		factory16 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt17 := factory16.GetProtocol(mbTrans14)
 		containerStruct0 := rpc.NewSetNodesArgs()
-		err19 := containerStruct0.ReadField1(jsProt18)
-		if err19 != nil {
+		err18 := containerStruct0.ReadField1(jsProt17)
+		if err18 != nil {
 			Usage()
 			return
 		}
@@ -147,19 +147,19 @@ func main() {
 			fmt.Fprintln(os.Stderr, "GetNodesByFeature requires 1 args")
 			flag.Usage()
 		}
-		arg20 := flag.Arg(1)
-		mbTrans21 := thrift.NewTMemoryBufferLen(len(arg20))
-		defer mbTrans21.Close()
-		_, err22 := mbTrans21.WriteString(arg20)
-		if err22 != nil {
+		arg19 := flag.Arg(1)
+		mbTrans20 := thrift.NewTMemoryBufferLen(len(arg19))
+		defer mbTrans20.Close()
+		_, err21 := mbTrans20.WriteString(arg19)
+		if err21 != nil {
 			Usage()
 			return
 		}
-		factory23 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt24 := factory23.GetProtocol(mbTrans21)
+		factory22 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt23 := factory22.GetProtocol(mbTrans20)
 		containerStruct0 := rpc.NewGetNodesByFeatureArgs()
-		err25 := containerStruct0.ReadField1(jsProt24)
-		if err25 != nil {
+		err24 := containerStruct0.ReadField1(jsProt23)
+		if err24 != nil {
 			Usage()
 			return
 		}

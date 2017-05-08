@@ -1,4 +1,13 @@
-log_level: debug
+log:
+  access_log_level: debug
+  access_log_path: ./log/access.log
+
+  app_log_path: ./log/app.log
+  app_log_level: debug
+
+  stat_log_path: ./log/stat.log
+  stat_log_level: debug
+
 shepherd:
   host: 127.0.0.1
   port: 1988

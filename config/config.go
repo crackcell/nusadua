@@ -42,8 +42,17 @@ var (
 )
 
 type Config struct {
-	LogLevel       string         `yaml:"log_level"`
+	LogConfig      LogConfig      `yaml:"log"`
 	ShepherdConfig ShepherdConfig `yaml:"shepherd"`
+}
+
+type LogConfig struct {
+	AccessLogPath  string `yaml:"access_log_path"`
+	AccessLogLevel string `yaml:"access_log_level"`
+	AppLogPath     string `yaml:"app_log_path"`
+	AppLogLevel    string `yaml:"app_log_level"`
+	StatLogPath    string `yaml:"stat_log_path"`
+	StatLogLevel   string `yaml:"stat_log_level"`
 }
 
 type ShepherdConfig struct {

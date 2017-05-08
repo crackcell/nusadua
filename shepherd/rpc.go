@@ -23,6 +23,7 @@ import (
 	"git.apache.org/thrift.git/lib/go/thrift"
 	"fmt"
 	"sync"
+	"github.com/crackcell/nusadua/config"
 )
 
 //===================================================================
@@ -34,6 +35,7 @@ type Rpc struct {
 	started bool
 	server *thrift.TSimpleServer
 	stop chan bool
+	featureShard *FeatureShard
 }
 
 func NewRpc() *Rpc {
@@ -41,6 +43,7 @@ func NewRpc() *Rpc {
 		lock: new(sync.Mutex),
 		started: false,
 		stop: make(chan bool),
+		featureShard: NewFeatureShard([]string{}, 3),
 	}
 }
 
@@ -89,11 +92,19 @@ func (this *Rpc) Wait() {
 }
 
 func (this *Rpc) SetNodes(nodes []string) (ex *rpc.ShepherdException, err error) {
+	this.featureShard.SetNodes(nodes, config.GlobalConfig.ShepherdConfig.DataReplicaNum)
 	return nil, nil
 }
 
-func (this *Rpc) GetNodesByFeature(key [][]int64) (r []string, ex *rpc.ShepherdException, err error) {
-	return []string{}, nil, nil
+func (this *Rpc) GetNodesByFeature(key []int64) (r []string, ex *rpc.ShepherdException, err error) {
+	if nodes, err := this.featureShard.GetNodesByFeature(key); err != nil {
+		ex := rpc.NewShepherdException()
+		ex.Message = err.Error()
+		ex.Status = 1
+		return nodes, ex, err
+	} else {
+		return nodes, nil, nil
+	}
 }
 
 //===================================================================

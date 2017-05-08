@@ -20,7 +20,6 @@ package shepherd
 
 import (
 	"fmt"
-
 	"github.com/crackcell/kihaadhoo/collections/hashring"
 )
 
@@ -42,8 +41,15 @@ func NewFeatureShard(nodes []string, replicaNum int) *FeatureShard {
 	}
 }
 
-func (m *FeatureShard) GetNodesByFeature(key []int64) (nodes []string, err error) {
-	if nodes, err = m.ring.GetNodes(fmt.Sprintf("%v", key), m.replicaNum); err != nil {
+func (this *FeatureShard) SetNodes(nodes []string, replicaNum int) *FeatureShard {
+	this.nodes = nodes
+	this.ring = hashring.New(nodes)
+	this.replicaNum = replicaNum
+	return this
+}
+
+func (this *FeatureShard) GetNodesByFeature(key []int64) (nodes []string, err error) {
+	if nodes, err = this.ring.GetNodes(fmt.Sprintf("%v", key), this.replicaNum); err != nil {
 		return nodes, nil
 	} else {
 		return nodes, err

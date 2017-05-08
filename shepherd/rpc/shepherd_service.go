@@ -20,7 +20,7 @@ type ShepherdService interface {
 	SetNodes(nodes []string) (ex *ShepherdException, err error)
 	// Parameters:
 	//  - Key
-	GetNodesByFeature(key [][]int64) (r []string, ex *ShepherdException, err error)
+	GetNodesByFeature(key []int64) (r []string, ex *ShepherdException, err error)
 }
 
 type ShepherdServiceClient struct {
@@ -112,14 +112,14 @@ func (p *ShepherdServiceClient) recvSetNodes() (ex *ShepherdException, err error
 
 // Parameters:
 //  - Key
-func (p *ShepherdServiceClient) GetNodesByFeature(key [][]int64) (r []string, ex *ShepherdException, err error) {
+func (p *ShepherdServiceClient) GetNodesByFeature(key []int64) (r []string, ex *ShepherdException, err error) {
 	if err = p.sendGetNodesByFeature(key); err != nil {
 		return
 	}
 	return p.recvGetNodesByFeature()
 }
 
-func (p *ShepherdServiceClient) sendGetNodesByFeature(key [][]int64) (err error) {
+func (p *ShepherdServiceClient) sendGetNodesByFeature(key []int64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -306,7 +306,7 @@ func (p *shepherdServiceProcessorGetNodesByFeature) Process(seqId int32, iprot, 
 // HELPER FUNCTIONS AND STRUCTURES
 
 type SetNodesArgs struct {
-	Nodes []string `thrift.git:"nodes,1"`
+	Nodes []string `thrift:"nodes,1"`
 }
 
 func NewSetNodesArgs() *SetNodesArgs {
@@ -413,7 +413,7 @@ func (p *SetNodesArgs) String() string {
 }
 
 type SetNodesResult struct {
-	Ex *ShepherdException `thrift.git:"ex,1"`
+	Ex *ShepherdException `thrift:"ex,1"`
 }
 
 func NewSetNodesResult() *SetNodesResult {
@@ -502,7 +502,7 @@ func (p *SetNodesResult) String() string {
 }
 
 type GetNodesByFeatureArgs struct {
-	Key [][]int64 `thrift.git:"key,1"`
+	Key []int64 `thrift:"key,1"`
 }
 
 func NewGetNodesByFeatureArgs() *GetNodesByFeatureArgs {
@@ -546,24 +546,13 @@ func (p *GetNodesByFeatureArgs) readField1(iprot thrift.TProtocol) error {
 	if err != nil {
 		return fmt.Errorf("error reading list being: %s")
 	}
-	p.Key = make([][]int64, 0, size)
+	p.Key = make([]int64, 0, size)
 	for i := 0; i < size; i++ {
-		_, size, err := iprot.ReadListBegin()
-		if err != nil {
-			return fmt.Errorf("error reading list being: %s")
-		}
-		_elem11 := make([]int64, 0, size)
-		for i := 0; i < size; i++ {
-			var _elem12 int64
-			if v, err := iprot.ReadI64(); err != nil {
-				return fmt.Errorf("error reading field 0: %s")
-			} else {
-				_elem12 = v
-			}
-			_elem11 = append(_elem11, _elem12)
-		}
-		if err := iprot.ReadListEnd(); err != nil {
-			return fmt.Errorf("error reading list end: %s")
+		var _elem11 int64
+		if v, err := iprot.ReadI64(); err != nil {
+			return fmt.Errorf("error reading field 0: %s")
+		} else {
+			_elem11 = v
 		}
 		p.Key = append(p.Key, _elem11)
 	}
@@ -594,20 +583,12 @@ func (p *GetNodesByFeatureArgs) writeField1(oprot thrift.TProtocol) (err error) 
 		if err := oprot.WriteFieldBegin("key", thrift.LIST, 1); err != nil {
 			return fmt.Errorf("%T write field begin error 1:key: %s", p, err)
 		}
-		if err := oprot.WriteListBegin(thrift.LIST, len(p.Key)); err != nil {
+		if err := oprot.WriteListBegin(thrift.I64, len(p.Key)); err != nil {
 			return fmt.Errorf("error writing list begin: %s")
 		}
 		for _, v := range p.Key {
-			if err := oprot.WriteListBegin(thrift.I64, len(v)); err != nil {
-				return fmt.Errorf("error writing list begin: %s")
-			}
-			for _, v := range v {
-				if err := oprot.WriteI64(int64(v)); err != nil {
-					return fmt.Errorf("%T. (0) field write error: %s", p)
-				}
-			}
-			if err := oprot.WriteListEnd(); err != nil {
-				return fmt.Errorf("error writing list end: %s")
+			if err := oprot.WriteI64(int64(v)); err != nil {
+				return fmt.Errorf("%T. (0) field write error: %s", p)
 			}
 		}
 		if err := oprot.WriteListEnd(); err != nil {
@@ -628,8 +609,8 @@ func (p *GetNodesByFeatureArgs) String() string {
 }
 
 type GetNodesByFeatureResult struct {
-	Success []string           `thrift.git:"success,0"`
-	Ex      *ShepherdException `thrift.git:"ex,1"`
+	Success []string           `thrift:"success,0"`
+	Ex      *ShepherdException `thrift:"ex,1"`
 }
 
 func NewGetNodesByFeatureResult() *GetNodesByFeatureResult {
@@ -679,13 +660,13 @@ func (p *GetNodesByFeatureResult) readField0(iprot thrift.TProtocol) error {
 	}
 	p.Success = make([]string, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem13 string
+		var _elem12 string
 		if v, err := iprot.ReadString(); err != nil {
 			return fmt.Errorf("error reading field 0: %s")
 		} else {
-			_elem13 = v
+			_elem12 = v
 		}
-		p.Success = append(p.Success, _elem13)
+		p.Success = append(p.Success, _elem12)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")
