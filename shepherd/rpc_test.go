@@ -8,36 +8,40 @@
  **************************************************************/
 
 /**
+ * 
  *
- *
- * @file feature_shard_test.go
+ * @file rpc_test.go
  * @author Menglong TAN <tanmenglong@gmail.com>
- * @date Thu May  4 19:48:51 2017
+ * @date Mon May  8 15:01:39 2017
  *
  **/
 
 package shepherd
 
 import (
-	"fmt"
 	"testing"
+	"time"
+	"fmt"
 )
 
 //===================================================================
 // Public APIs
 //===================================================================
 
-func TestMetaGetNodesByFeature(t *testing.T) {
-	nodes := []string{
-		"127.0.0.1:1988",
-		"127.0.0.1:1989",
-		"127.0.0.1:1990",
-	}
-	key := []int64{1, 2, 3}
-	meta := NewFeatureShard(nodes, 3)
-	fmt.Println(meta.GetNodesByFeature(key))
+func TestRpc(t *testing.T) {
+	r := NewRpc()
+	r.Start("127.0.0.1", 12345)
+	go func() {
+		for i := 1; i <= 5; i++ {
+			fmt.Println("waiting", i)
+			time.Sleep(time.Second)
+		}
+		r.Stop()
+	}()
+	r.Wait()
 }
 
 //===================================================================
 // Private
 //===================================================================
+

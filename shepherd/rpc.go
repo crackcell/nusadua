@@ -31,11 +31,14 @@ import (
 type Rpc struct {
 	host string
 	port int
+	server *thrift.TSimpleServer
 	stop chan bool
 }
 
 func NewRpc() *Rpc {
-	return &Rpc{}
+	return &Rpc{
+		stop: make(chan bool),
+	}
 }
 
 func (this *Rpc) Start(addr string, port int) (err error) {
@@ -46,10 +49,22 @@ func (this *Rpc) Start(addr string, port int) (err error) {
 		return err
 	}
 
-	processor := rpc.NewShepherdServiceProcessor(this)
+	processorFactory := thrift.NewTProcessorFactory(rpc.NewShepherdServiceProcessor(this))
 
-	server := thrift.NewTSimpleServerFactory4(processor, serverTransport, transportFactory, protocolFactory)
-	server.Serve()
+	this.server = thrift.NewTSimpleServerFactory4(processorFactory, serverTransport, transportFactory, protocolFactory)
+	go func() {
+		this.server.Serve()
+		this.stop <- true
+	}()
+	return nil
+}
+
+func (this *Rpc) Stop() error {
+	return this.server.Stop()
+}
+
+func (this *Rpc) Wait() {
+	<- this.stop
 }
 
 func (this *Rpc) SetNodes(nodes []string) (ex *rpc.ShepherdException, err error) {
