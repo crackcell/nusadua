@@ -19,10 +19,6 @@
 package main
 
 import (
-	"os"
-	"sync"
-	"syscall"
-
 	"fmt"
 	"github.com/crackcell/kihaadhoo/signal"
 	"github.com/crackcell/nusadua/cluster"
@@ -30,6 +26,9 @@ import (
 	"github.com/crackcell/nusadua/log"
 	"github.com/crackcell/nusadua/router"
 	"github.com/crackcell/nusadua/server"
+	"os"
+	"sync"
+	"syscall"
 )
 
 //===================================================================
@@ -44,7 +43,7 @@ var wg sync.WaitGroup
 var routerRpc = router.NewRpc()
 var serverRpc = server.NewRpc()
 var discover *cluster.Catalog
-var instanceId = ""
+var instanceId string
 
 func runRpc() {
 	if config.Role == "router" {
