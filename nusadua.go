@@ -43,6 +43,8 @@ import (
 var wg sync.WaitGroup
 var routerRpc = router.NewRpc()
 var serverRpc = server.NewRpc()
+var discover *cluster.Catalog
+var instanceId = ""
 
 func runRpc() {
 	if config.Role == "router" {
@@ -74,13 +76,16 @@ func registerService() {
 	if err != nil {
 		panic(err)
 	}
-	instanceId := fmt.Sprintf("%s-%d",
+	instanceId = fmt.Sprintf("%s:%d",
 		config.GlobalConfig.ConsulConfig.ServiceName,
 		config.GlobalConfig.ServerConfig.Port)
 	discover.Register(config.GlobalConfig.ConsulConfig.ServiceName,
 		instanceId,
 		config.GlobalConfig.ServerConfig.Port)
-	defer discover.DeRegister(instanceId)
+}
+
+func deregisterService() {
+	discover.DeRegister(instanceId)
 }
 
 func handleSignals() {
@@ -117,6 +122,7 @@ func main() {
 
 	runRpc()
 	registerService()
+	defer deregisterService()
 	handleSignals()
 
 	// wait for finish
