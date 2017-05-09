@@ -19,4 +19,4 @@ router:
 
 server:
   host: 127.0.0.1
-  port: 1989
+  port: 1990

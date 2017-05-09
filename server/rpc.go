@@ -12,16 +12,15 @@
  *
  * @file rpc.go
  * @author Menglong TAN <tanmenglong@gmail.com>
- * @date Fri May  5 17:40:17 2017
+ * @date Tue May  9 11:57:24 2017
  *
  **/
 
-package router
+package server
 
 import (
 	"fmt"
 	"git.apache.org/thrift.git/lib/go/thrift"
-	"github.com/crackcell/nusadua/config"
 	"github.com/crackcell/nusadua/rpc"
 	"sync"
 )
@@ -31,19 +30,17 @@ import (
 //===================================================================
 
 type Rpc struct {
-	lock         *sync.Mutex
-	started      bool
-	server       *thrift.TSimpleServer
-	stop         chan bool
-	featureShard *FeatureShard
+	lock    *sync.Mutex
+	started bool
+	server  *thrift.TSimpleServer
+	stop    chan bool
 }
 
 func NewRpc() *Rpc {
 	return &Rpc{
-		lock:         new(sync.Mutex),
-		started:      false,
-		stop:         make(chan bool),
-		featureShard: NewFeatureShard([]string{}, 3),
+		lock:    new(sync.Mutex),
+		started: false,
+		stop:    make(chan bool),
 	}
 }
 
@@ -59,7 +56,7 @@ func (this *Rpc) Start(host string, port int) (err error) {
 		return err
 	}
 
-	processorFactory := thrift.NewTProcessorFactory(rpc.NewRouterProcessor(this))
+	processorFactory := thrift.NewTProcessorFactory(rpc.NewServerProcessor(this))
 
 	this.server = thrift.NewTSimpleServerFactory4(processorFactory, serverTransport, transportFactory, protocolFactory)
 	go func() {
@@ -91,20 +88,20 @@ func (this *Rpc) Wait() {
 	<-this.stop
 }
 
-func (this *Rpc) SetNodes(nodes []string) (ex *rpc.RpcException, err error) {
-	this.featureShard.SetNodes(nodes, config.GlobalConfig.RouterConfig.ReplicaNum)
+func (this *Rpc) MultiPush(keys [][]int64, values []float64) (ex *rpc.RpcException, err error) {
 	return nil, nil
 }
 
-func (this *Rpc) GetNodesByFeature(key []int64) (r []string, ex *rpc.RpcException, err error) {
-	if nodes, err := this.featureShard.GetNodesByFeature(key); err != nil {
-		ex := rpc.NewRpcException()
-		ex.Message = err.Error()
-		ex.Status = 1
-		return nodes, ex, err
-	} else {
-		return nodes, nil, nil
-	}
+func (this *Rpc) MultiPull(keys [][]int64) (r []float64, ex *rpc.RpcException, err error) {
+	return []float64{}, nil, nil
+}
+
+func (this *Rpc) RangePush(start_key int64, end_key int64, values []float64) (ex *rpc.RpcException, err error) {
+	return nil, nil
+}
+
+func (this *Rpc) RangePull(start_key int64, end_key int64) (r []float64, ex *rpc.RpcException, err error) {
+	return []float64{}, nil, nil
 }
 
 //===================================================================

@@ -16,16 +16,16 @@ var _ = fmt.Printf
 
 var GoUnusedProtection__ int
 
-type RouterException struct {
+type RpcException struct {
 	Status  int32  `thrift:"status,1"`
 	Message string `thrift:"message,2"`
 }
 
-func NewRouterException() *RouterException {
-	return &RouterException{}
+func NewRpcException() *RpcException {
+	return &RpcException{}
 }
 
-func (p *RouterException) Read(iprot thrift.TProtocol) error {
+func (p *RpcException) Read(iprot thrift.TProtocol) error {
 	if _, err := iprot.ReadStructBegin(); err != nil {
 		return fmt.Errorf("%T read error", p)
 	}
@@ -61,7 +61,7 @@ func (p *RouterException) Read(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *RouterException) readField1(iprot thrift.TProtocol) error {
+func (p *RpcException) readField1(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadI32(); err != nil {
 		return fmt.Errorf("error reading field 1: %s")
 	} else {
@@ -70,7 +70,7 @@ func (p *RouterException) readField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *RouterException) readField2(iprot thrift.TProtocol) error {
+func (p *RpcException) readField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return fmt.Errorf("error reading field 2: %s")
 	} else {
@@ -79,8 +79,8 @@ func (p *RouterException) readField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *RouterException) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("RouterException"); err != nil {
+func (p *RpcException) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("RpcException"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	if err := p.writeField1(oprot); err != nil {
@@ -98,7 +98,7 @@ func (p *RouterException) Write(oprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *RouterException) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *RpcException) writeField1(oprot thrift.TProtocol) (err error) {
 	if err := oprot.WriteFieldBegin("status", thrift.I32, 1); err != nil {
 		return fmt.Errorf("%T write field begin error 1:status: %s", p, err)
 	}
@@ -111,7 +111,7 @@ func (p *RouterException) writeField1(oprot thrift.TProtocol) (err error) {
 	return err
 }
 
-func (p *RouterException) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *RpcException) writeField2(oprot thrift.TProtocol) (err error) {
 	if err := oprot.WriteFieldBegin("message", thrift.STRING, 2); err != nil {
 		return fmt.Errorf("%T write field begin error 2:message: %s", p, err)
 	}
@@ -124,9 +124,9 @@ func (p *RouterException) writeField2(oprot thrift.TProtocol) (err error) {
 	return err
 }
 
-func (p *RouterException) String() string {
+func (p *RpcException) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("RouterException(%+v)", *p)
+	return fmt.Sprintf("RpcException(%+v)", *p)
 }

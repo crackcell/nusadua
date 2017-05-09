@@ -42,8 +42,10 @@ var (
 )
 
 type Config struct {
+	ConsulConfig ConsulConfig `yaml:"consul"`
 	LogConfig    LogConfig    `yaml:"log"`
 	RouterConfig RouterConfig `yaml:"router"`
+	ServerConfig ServerConfig `yaml:"server"`
 }
 
 type LogConfig struct {
@@ -55,10 +57,20 @@ type LogConfig struct {
 	StatLogLevel   string `yaml:"stat_log_level"`
 }
 
+type ConsulConfig struct {
+	AgentAddr   string `yaml:"agent_addr"`
+	ServiceName string `yaml:"service_name"`
+}
+
 type RouterConfig struct {
 	Host       string `yaml:"host"`
 	Port       int    `yaml:"port"`
 	ReplicaNum int    `yaml:"replica_num"`
+}
+
+type ServerConfig struct {
+	Host string `yaml:"host"`
+	Port int    `yaml:"port"`
 }
 
 var GlobalConfig = &Config{}

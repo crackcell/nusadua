@@ -14,16 +14,16 @@ var _ = math.MinInt32
 var _ = thrift.ZERO
 var _ = fmt.Printf
 
-type RouterService interface {
+type Router interface {
 	// Parameters:
 	//  - Nodes
-	SetNodes(nodes []string) (ex *RouterException, err error)
+	SetNodes(nodes []string) (ex *RpcException, err error)
 	// Parameters:
 	//  - Key
-	GetNodesByFeature(key []int64) (r []string, ex *RouterException, err error)
+	GetNodesByFeature(key []int64) (r []string, ex *RpcException, err error)
 }
 
-type RouterServiceClient struct {
+type RouterClient struct {
 	Transport       thrift.TTransport
 	ProtocolFactory thrift.TProtocolFactory
 	InputProtocol   thrift.TProtocol
@@ -31,8 +31,8 @@ type RouterServiceClient struct {
 	SeqId           int32
 }
 
-func NewRouterServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *RouterServiceClient {
-	return &RouterServiceClient{Transport: t,
+func NewRouterClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *RouterClient {
+	return &RouterClient{Transport: t,
 		ProtocolFactory: f,
 		InputProtocol:   f.GetProtocol(t),
 		OutputProtocol:  f.GetProtocol(t),
@@ -40,8 +40,8 @@ func NewRouterServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactor
 	}
 }
 
-func NewRouterServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *RouterServiceClient {
-	return &RouterServiceClient{Transport: t,
+func NewRouterClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *RouterClient {
+	return &RouterClient{Transport: t,
 		ProtocolFactory: nil,
 		InputProtocol:   iprot,
 		OutputProtocol:  oprot,
@@ -51,21 +51,21 @@ func NewRouterServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol,
 
 // Parameters:
 //  - Nodes
-func (p *RouterServiceClient) SetNodes(nodes []string) (ex *RouterException, err error) {
+func (p *RouterClient) SetNodes(nodes []string) (ex *RpcException, err error) {
 	if err = p.sendSetNodes(nodes); err != nil {
 		return
 	}
 	return p.recvSetNodes()
 }
 
-func (p *RouterServiceClient) sendSetNodes(nodes []string) (err error) {
+func (p *RouterClient) sendSetNodes(nodes []string) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
 		p.OutputProtocol = oprot
 	}
 	p.SeqId++
-	oprot.WriteMessageBegin("setNodes", thrift.CALL, p.SeqId)
+	oprot.WriteMessageBegin("set_nodes", thrift.CALL, p.SeqId)
 	args0 := NewSetNodesArgs()
 	args0.Nodes = nodes
 	err = args0.Write(oprot)
@@ -74,7 +74,7 @@ func (p *RouterServiceClient) sendSetNodes(nodes []string) (err error) {
 	return
 }
 
-func (p *RouterServiceClient) recvSetNodes() (ex *RouterException, err error) {
+func (p *RouterClient) recvSetNodes() (ex *RpcException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -112,21 +112,21 @@ func (p *RouterServiceClient) recvSetNodes() (ex *RouterException, err error) {
 
 // Parameters:
 //  - Key
-func (p *RouterServiceClient) GetNodesByFeature(key []int64) (r []string, ex *RouterException, err error) {
+func (p *RouterClient) GetNodesByFeature(key []int64) (r []string, ex *RpcException, err error) {
 	if err = p.sendGetNodesByFeature(key); err != nil {
 		return
 	}
 	return p.recvGetNodesByFeature()
 }
 
-func (p *RouterServiceClient) sendGetNodesByFeature(key []int64) (err error) {
+func (p *RouterClient) sendGetNodesByFeature(key []int64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
 		p.OutputProtocol = oprot
 	}
 	p.SeqId++
-	oprot.WriteMessageBegin("getNodesByFeature", thrift.CALL, p.SeqId)
+	oprot.WriteMessageBegin("get_nodes_by_feature", thrift.CALL, p.SeqId)
 	args4 := NewGetNodesByFeatureArgs()
 	args4.Key = key
 	err = args4.Write(oprot)
@@ -135,7 +135,7 @@ func (p *RouterServiceClient) sendGetNodesByFeature(key []int64) (err error) {
 	return
 }
 
-func (p *RouterServiceClient) recvGetNodesByFeature() (value []string, ex *RouterException, err error) {
+func (p *RouterClient) recvGetNodesByFeature() (value []string, ex *RpcException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -172,33 +172,33 @@ func (p *RouterServiceClient) recvGetNodesByFeature() (value []string, ex *Route
 	return
 }
 
-type RouterServiceProcessor struct {
+type RouterProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
-	handler      RouterService
+	handler      Router
 }
 
-func (p *RouterServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
+func (p *RouterProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
 	p.processorMap[key] = processor
 }
 
-func (p *RouterServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
+func (p *RouterProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
 	processor, ok = p.processorMap[key]
 	return processor, ok
 }
 
-func (p *RouterServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
+func (p *RouterProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
 	return p.processorMap
 }
 
-func NewRouterServiceProcessor(handler RouterService) *RouterServiceProcessor {
+func NewRouterProcessor(handler Router) *RouterProcessor {
 
-	self8 := &RouterServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
-	self8.processorMap["setNodes"] = &routerServiceProcessorSetNodes{handler: handler}
-	self8.processorMap["getNodesByFeature"] = &routerServiceProcessorGetNodesByFeature{handler: handler}
+	self8 := &RouterProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
+	self8.processorMap["set_nodes"] = &routerProcessorSetNodes{handler: handler}
+	self8.processorMap["get_nodes_by_feature"] = &routerProcessorGetNodesByFeature{handler: handler}
 	return self8
 }
 
-func (p *RouterServiceProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *RouterProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	name, _, seqId, err := iprot.ReadMessageBegin()
 	if err != nil {
 		return false, err
@@ -217,16 +217,16 @@ func (p *RouterServiceProcessor) Process(iprot, oprot thrift.TProtocol) (success
 
 }
 
-type routerServiceProcessorSetNodes struct {
-	handler RouterService
+type routerProcessorSetNodes struct {
+	handler Router
 }
 
-func (p *routerServiceProcessorSetNodes) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *routerProcessorSetNodes) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewSetNodesArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("setNodes", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("set_nodes", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
@@ -235,14 +235,14 @@ func (p *routerServiceProcessorSetNodes) Process(seqId int32, iprot, oprot thrif
 	iprot.ReadMessageEnd()
 	result := NewSetNodesResult()
 	if result.Ex, err = p.handler.SetNodes(args.Nodes); err != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing setNodes: "+err.Error())
-		oprot.WriteMessageBegin("setNodes", thrift.EXCEPTION, seqId)
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing set_nodes: "+err.Error())
+		oprot.WriteMessageBegin("set_nodes", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
 		return
 	}
-	if err2 := oprot.WriteMessageBegin("setNodes", thrift.REPLY, seqId); err2 != nil {
+	if err2 := oprot.WriteMessageBegin("set_nodes", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 := result.Write(oprot); err == nil && err2 != nil {
@@ -260,16 +260,16 @@ func (p *routerServiceProcessorSetNodes) Process(seqId int32, iprot, oprot thrif
 	return true, err
 }
 
-type routerServiceProcessorGetNodesByFeature struct {
-	handler RouterService
+type routerProcessorGetNodesByFeature struct {
+	handler Router
 }
 
-func (p *routerServiceProcessorGetNodesByFeature) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *routerProcessorGetNodesByFeature) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewGetNodesByFeatureArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("getNodesByFeature", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("get_nodes_by_feature", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
@@ -278,14 +278,14 @@ func (p *routerServiceProcessorGetNodesByFeature) Process(seqId int32, iprot, op
 	iprot.ReadMessageEnd()
 	result := NewGetNodesByFeatureResult()
 	if result.Success, result.Ex, err = p.handler.GetNodesByFeature(args.Key); err != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing getNodesByFeature: "+err.Error())
-		oprot.WriteMessageBegin("getNodesByFeature", thrift.EXCEPTION, seqId)
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing get_nodes_by_feature: "+err.Error())
+		oprot.WriteMessageBegin("get_nodes_by_feature", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush()
 		return
 	}
-	if err2 := oprot.WriteMessageBegin("getNodesByFeature", thrift.REPLY, seqId); err2 != nil {
+	if err2 := oprot.WriteMessageBegin("get_nodes_by_feature", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 := result.Write(oprot); err == nil && err2 != nil {
@@ -367,7 +367,7 @@ func (p *SetNodesArgs) readField1(iprot thrift.TProtocol) error {
 }
 
 func (p *SetNodesArgs) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("setNodes_args"); err != nil {
+	if err := oprot.WriteStructBegin("set_nodes_args"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	if err := p.writeField1(oprot); err != nil {
@@ -413,7 +413,7 @@ func (p *SetNodesArgs) String() string {
 }
 
 type SetNodesResult struct {
-	Ex *RouterException `thrift:"ex,1"`
+	Ex *RpcException `thrift:"ex,1"`
 }
 
 func NewSetNodesResult() *SetNodesResult {
@@ -453,7 +453,7 @@ func (p *SetNodesResult) Read(iprot thrift.TProtocol) error {
 }
 
 func (p *SetNodesResult) readField1(iprot thrift.TProtocol) error {
-	p.Ex = NewRouterException()
+	p.Ex = NewRpcException()
 	if err := p.Ex.Read(iprot); err != nil {
 		return fmt.Errorf("%T error reading struct: %s", p.Ex)
 	}
@@ -461,7 +461,7 @@ func (p *SetNodesResult) readField1(iprot thrift.TProtocol) error {
 }
 
 func (p *SetNodesResult) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("setNodes_result"); err != nil {
+	if err := oprot.WriteStructBegin("set_nodes_result"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	switch {
@@ -563,7 +563,7 @@ func (p *GetNodesByFeatureArgs) readField1(iprot thrift.TProtocol) error {
 }
 
 func (p *GetNodesByFeatureArgs) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("getNodesByFeature_args"); err != nil {
+	if err := oprot.WriteStructBegin("get_nodes_by_feature_args"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	if err := p.writeField1(oprot); err != nil {
@@ -609,8 +609,8 @@ func (p *GetNodesByFeatureArgs) String() string {
 }
 
 type GetNodesByFeatureResult struct {
-	Success []string         `thrift:"success,0"`
-	Ex      *RouterException `thrift:"ex,1"`
+	Success []string      `thrift:"success,0"`
+	Ex      *RpcException `thrift:"ex,1"`
 }
 
 func NewGetNodesByFeatureResult() *GetNodesByFeatureResult {
@@ -675,7 +675,7 @@ func (p *GetNodesByFeatureResult) readField0(iprot thrift.TProtocol) error {
 }
 
 func (p *GetNodesByFeatureResult) readField1(iprot thrift.TProtocol) error {
-	p.Ex = NewRouterException()
+	p.Ex = NewRpcException()
 	if err := p.Ex.Read(iprot); err != nil {
 		return fmt.Errorf("%T error reading struct: %s", p.Ex)
 	}
@@ -683,7 +683,7 @@ func (p *GetNodesByFeatureResult) readField1(iprot thrift.TProtocol) error {
 }
 
 func (p *GetNodesByFeatureResult) Write(oprot thrift.TProtocol) error {
-	if err := oprot.WriteStructBegin("getNodesByFeature_result"); err != nil {
+	if err := oprot.WriteStructBegin("get_nodes_by_feature_result"); err != nil {
 		return fmt.Errorf("%T write struct begin error: %s", p, err)
 	}
 	switch {

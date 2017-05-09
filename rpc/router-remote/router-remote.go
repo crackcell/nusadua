@@ -10,7 +10,7 @@ import (
 	"math"
 	"net"
 	"net/url"
-	"nusadua/router/rpc"
+	"nusadua/rpc"
 	"os"
 	"strconv"
 	"strings"
@@ -20,8 +20,8 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "Usage of ", os.Args[0], " [-h host:port] [-u url] [-f[ramed]] function [arg1 [arg2...]]:")
 	flag.PrintDefaults()
 	fmt.Fprintln(os.Stderr, "\nFunctions:")
-	fmt.Fprintln(os.Stderr, "  void setNodes( nodes)")
-	fmt.Fprintln(os.Stderr, "   getNodesByFeature( key)")
+	fmt.Fprintln(os.Stderr, "  void set_nodes( nodes)")
+	fmt.Fprintln(os.Stderr, "   get_nodes_by_feature( key)")
 	fmt.Fprintln(os.Stderr)
 	os.Exit(0)
 }
@@ -109,14 +109,14 @@ func main() {
 		Usage()
 		os.Exit(1)
 	}
-	client := rpc.NewRouterServiceClientFactory(trans, protocolFactory)
+	client := rpc.NewRouterClientFactory(trans, protocolFactory)
 	if err := trans.Open(); err != nil {
 		fmt.Fprintln(os.Stderr, "Error opening socket to ", host, ":", port, " ", err)
 		os.Exit(1)
 	}
 
 	switch cmd {
-	case "setNodes":
+	case "set_nodes":
 		if flag.NArg()-1 != 1 {
 			fmt.Fprintln(os.Stderr, "SetNodes requires 1 args")
 			flag.Usage()
@@ -142,7 +142,7 @@ func main() {
 		fmt.Print(client.SetNodes(value0))
 		fmt.Print("\n")
 		break
-	case "getNodesByFeature":
+	case "get_nodes_by_feature":
 		if flag.NArg()-1 != 1 {
 			fmt.Fprintln(os.Stderr, "GetNodesByFeature requires 1 args")
 			flag.Usage()
