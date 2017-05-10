@@ -12,11 +12,11 @@ log:
   stat_log_path: ./log/stat.log
   stat_log_level: debug
 
-router:
-  host: 127.0.0.1
-  port: 1988
-  replica_num: 3
-
-server:
+rpc:
   host: 127.0.0.1
   port: 1989
+
+router:
+  # Interval(ms) to get node info from consul
+  refresh_interval: 1000
+  replica: 3

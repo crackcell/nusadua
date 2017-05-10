@@ -14,7 +14,11 @@ var _ = math.MinInt32
 var _ = thrift.ZERO
 var _ = fmt.Printf
 
-type Server interface {
+type ParameterServer interface {
+	// Parameters:
+	//  - Name
+	//  - MaxKey
+	CreateTask(name string, max_key int64) (ex *RpcException, err error)
 	// Parameters:
 	//  - Keys
 	//  - Values
@@ -33,7 +37,7 @@ type Server interface {
 	RangePull(start_key int64, end_key int64) (r []float64, ex *RpcException, err error)
 }
 
-type ServerClient struct {
+type ParameterServerClient struct {
 	Transport       thrift.TTransport
 	ProtocolFactory thrift.TProtocolFactory
 	InputProtocol   thrift.TProtocol
@@ -41,8 +45,8 @@ type ServerClient struct {
 	SeqId           int32
 }
 
-func NewServerClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *ServerClient {
-	return &ServerClient{Transport: t,
+func NewParameterServerClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *ParameterServerClient {
+	return &ParameterServerClient{Transport: t,
 		ProtocolFactory: f,
 		InputProtocol:   f.GetProtocol(t),
 		OutputProtocol:  f.GetProtocol(t),
@@ -50,8 +54,8 @@ func NewServerClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *Ser
 	}
 }
 
-func NewServerClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *ServerClient {
-	return &ServerClient{Transport: t,
+func NewParameterServerClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *ParameterServerClient {
+	return &ParameterServerClient{Transport: t,
 		ProtocolFactory: nil,
 		InputProtocol:   iprot,
 		OutputProtocol:  oprot,
@@ -60,16 +64,79 @@ func NewServerClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot 
 }
 
 // Parameters:
+//  - Name
+//  - MaxKey
+func (p *ParameterServerClient) CreateTask(name string, max_key int64) (ex *RpcException, err error) {
+	if err = p.sendCreateTask(name, max_key); err != nil {
+		return
+	}
+	return p.recvCreateTask()
+}
+
+func (p *ParameterServerClient) sendCreateTask(name string, max_key int64) (err error) {
+	oprot := p.OutputProtocol
+	if oprot == nil {
+		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.OutputProtocol = oprot
+	}
+	p.SeqId++
+	oprot.WriteMessageBegin("create_task", thrift.CALL, p.SeqId)
+	args0 := NewCreateTaskArgs()
+	args0.Name = name
+	args0.MaxKey = max_key
+	err = args0.Write(oprot)
+	oprot.WriteMessageEnd()
+	oprot.Flush()
+	return
+}
+
+func (p *ParameterServerClient) recvCreateTask() (ex *RpcException, err error) {
+	iprot := p.InputProtocol
+	if iprot == nil {
+		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
+		p.InputProtocol = iprot
+	}
+	_, mTypeId, seqId, err := iprot.ReadMessageBegin()
+	if err != nil {
+		return
+	}
+	if mTypeId == thrift.EXCEPTION {
+		error2 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error3 error
+		error3, err = error2.Read(iprot)
+		if err != nil {
+			return
+		}
+		if err = iprot.ReadMessageEnd(); err != nil {
+			return
+		}
+		err = error3
+		return
+	}
+	if p.SeqId != seqId {
+		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ping failed: out of sequence response")
+		return
+	}
+	result1 := NewCreateTaskResult()
+	err = result1.Read(iprot)
+	iprot.ReadMessageEnd()
+	if result1.Ex != nil {
+		ex = result1.Ex
+	}
+	return
+}
+
+// Parameters:
 //  - Keys
 //  - Values
-func (p *ServerClient) MultiPush(keys [][]int64, values []float64) (ex *RpcException, err error) {
+func (p *ParameterServerClient) MultiPush(keys [][]int64, values []float64) (ex *RpcException, err error) {
 	if err = p.sendMultiPush(keys, values); err != nil {
 		return
 	}
 	return p.recvMultiPush()
 }
 
-func (p *ServerClient) sendMultiPush(keys [][]int64, values []float64) (err error) {
+func (p *ParameterServerClient) sendMultiPush(keys [][]int64, values []float64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -77,16 +144,16 @@ func (p *ServerClient) sendMultiPush(keys [][]int64, values []float64) (err erro
 	}
 	p.SeqId++
 	oprot.WriteMessageBegin("multi_push", thrift.CALL, p.SeqId)
-	args25 := NewMultiPushArgs()
-	args25.Keys = keys
-	args25.Values = values
-	err = args25.Write(oprot)
+	args4 := NewMultiPushArgs()
+	args4.Keys = keys
+	args4.Values = values
+	err = args4.Write(oprot)
 	oprot.WriteMessageEnd()
 	oprot.Flush()
 	return
 }
 
-func (p *ServerClient) recvMultiPush() (ex *RpcException, err error) {
+func (p *ParameterServerClient) recvMultiPush() (ex *RpcException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -97,41 +164,41 @@ func (p *ServerClient) recvMultiPush() (ex *RpcException, err error) {
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error27 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error28 error
-		error28, err = error27.Read(iprot)
+		error6 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error7 error
+		error7, err = error6.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error28
+		err = error7
 		return
 	}
 	if p.SeqId != seqId {
 		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ping failed: out of sequence response")
 		return
 	}
-	result26 := NewMultiPushResult()
-	err = result26.Read(iprot)
+	result5 := NewMultiPushResult()
+	err = result5.Read(iprot)
 	iprot.ReadMessageEnd()
-	if result26.Ex != nil {
-		ex = result26.Ex
+	if result5.Ex != nil {
+		ex = result5.Ex
 	}
 	return
 }
 
 // Parameters:
 //  - Keys
-func (p *ServerClient) MultiPull(keys [][]int64) (r []float64, ex *RpcException, err error) {
+func (p *ParameterServerClient) MultiPull(keys [][]int64) (r []float64, ex *RpcException, err error) {
 	if err = p.sendMultiPull(keys); err != nil {
 		return
 	}
 	return p.recvMultiPull()
 }
 
-func (p *ServerClient) sendMultiPull(keys [][]int64) (err error) {
+func (p *ParameterServerClient) sendMultiPull(keys [][]int64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -139,15 +206,15 @@ func (p *ServerClient) sendMultiPull(keys [][]int64) (err error) {
 	}
 	p.SeqId++
 	oprot.WriteMessageBegin("multi_pull", thrift.CALL, p.SeqId)
-	args29 := NewMultiPullArgs()
-	args29.Keys = keys
-	err = args29.Write(oprot)
+	args8 := NewMultiPullArgs()
+	args8.Keys = keys
+	err = args8.Write(oprot)
 	oprot.WriteMessageEnd()
 	oprot.Flush()
 	return
 }
 
-func (p *ServerClient) recvMultiPull() (value []float64, ex *RpcException, err error) {
+func (p *ParameterServerClient) recvMultiPull() (value []float64, ex *RpcException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -158,28 +225,28 @@ func (p *ServerClient) recvMultiPull() (value []float64, ex *RpcException, err e
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error31 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error32 error
-		error32, err = error31.Read(iprot)
+		error10 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error11 error
+		error11, err = error10.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error32
+		err = error11
 		return
 	}
 	if p.SeqId != seqId {
 		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ping failed: out of sequence response")
 		return
 	}
-	result30 := NewMultiPullResult()
-	err = result30.Read(iprot)
+	result9 := NewMultiPullResult()
+	err = result9.Read(iprot)
 	iprot.ReadMessageEnd()
-	value = result30.Success
-	if result30.Ex != nil {
-		ex = result30.Ex
+	value = result9.Success
+	if result9.Ex != nil {
+		ex = result9.Ex
 	}
 	return
 }
@@ -188,14 +255,14 @@ func (p *ServerClient) recvMultiPull() (value []float64, ex *RpcException, err e
 //  - StartKey
 //  - EndKey
 //  - Values
-func (p *ServerClient) RangePush(start_key int64, end_key int64, values []float64) (ex *RpcException, err error) {
+func (p *ParameterServerClient) RangePush(start_key int64, end_key int64, values []float64) (ex *RpcException, err error) {
 	if err = p.sendRangePush(start_key, end_key, values); err != nil {
 		return
 	}
 	return p.recvRangePush()
 }
 
-func (p *ServerClient) sendRangePush(start_key int64, end_key int64, values []float64) (err error) {
+func (p *ParameterServerClient) sendRangePush(start_key int64, end_key int64, values []float64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -203,17 +270,17 @@ func (p *ServerClient) sendRangePush(start_key int64, end_key int64, values []fl
 	}
 	p.SeqId++
 	oprot.WriteMessageBegin("range_push", thrift.CALL, p.SeqId)
-	args33 := NewRangePushArgs()
-	args33.StartKey = start_key
-	args33.EndKey = end_key
-	args33.Values = values
-	err = args33.Write(oprot)
+	args12 := NewRangePushArgs()
+	args12.StartKey = start_key
+	args12.EndKey = end_key
+	args12.Values = values
+	err = args12.Write(oprot)
 	oprot.WriteMessageEnd()
 	oprot.Flush()
 	return
 }
 
-func (p *ServerClient) recvRangePush() (ex *RpcException, err error) {
+func (p *ParameterServerClient) recvRangePush() (ex *RpcException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -224,27 +291,27 @@ func (p *ServerClient) recvRangePush() (ex *RpcException, err error) {
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error35 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error36 error
-		error36, err = error35.Read(iprot)
+		error14 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error15 error
+		error15, err = error14.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error36
+		err = error15
 		return
 	}
 	if p.SeqId != seqId {
 		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ping failed: out of sequence response")
 		return
 	}
-	result34 := NewRangePushResult()
-	err = result34.Read(iprot)
+	result13 := NewRangePushResult()
+	err = result13.Read(iprot)
 	iprot.ReadMessageEnd()
-	if result34.Ex != nil {
-		ex = result34.Ex
+	if result13.Ex != nil {
+		ex = result13.Ex
 	}
 	return
 }
@@ -252,14 +319,14 @@ func (p *ServerClient) recvRangePush() (ex *RpcException, err error) {
 // Parameters:
 //  - StartKey
 //  - EndKey
-func (p *ServerClient) RangePull(start_key int64, end_key int64) (r []float64, ex *RpcException, err error) {
+func (p *ParameterServerClient) RangePull(start_key int64, end_key int64) (r []float64, ex *RpcException, err error) {
 	if err = p.sendRangePull(start_key, end_key); err != nil {
 		return
 	}
 	return p.recvRangePull()
 }
 
-func (p *ServerClient) sendRangePull(start_key int64, end_key int64) (err error) {
+func (p *ParameterServerClient) sendRangePull(start_key int64, end_key int64) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -267,16 +334,16 @@ func (p *ServerClient) sendRangePull(start_key int64, end_key int64) (err error)
 	}
 	p.SeqId++
 	oprot.WriteMessageBegin("range_pull", thrift.CALL, p.SeqId)
-	args37 := NewRangePullArgs()
-	args37.StartKey = start_key
-	args37.EndKey = end_key
-	err = args37.Write(oprot)
+	args16 := NewRangePullArgs()
+	args16.StartKey = start_key
+	args16.EndKey = end_key
+	err = args16.Write(oprot)
 	oprot.WriteMessageEnd()
 	oprot.Flush()
 	return
 }
 
-func (p *ServerClient) recvRangePull() (value []float64, ex *RpcException, err error) {
+func (p *ParameterServerClient) recvRangePull() (value []float64, ex *RpcException, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -287,61 +354,62 @@ func (p *ServerClient) recvRangePull() (value []float64, ex *RpcException, err e
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error39 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error40 error
-		error40, err = error39.Read(iprot)
+		error18 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error19 error
+		error19, err = error18.Read(iprot)
 		if err != nil {
 			return
 		}
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error40
+		err = error19
 		return
 	}
 	if p.SeqId != seqId {
 		err = thrift.NewTApplicationException(thrift.BAD_SEQUENCE_ID, "ping failed: out of sequence response")
 		return
 	}
-	result38 := NewRangePullResult()
-	err = result38.Read(iprot)
+	result17 := NewRangePullResult()
+	err = result17.Read(iprot)
 	iprot.ReadMessageEnd()
-	value = result38.Success
-	if result38.Ex != nil {
-		ex = result38.Ex
+	value = result17.Success
+	if result17.Ex != nil {
+		ex = result17.Ex
 	}
 	return
 }
 
-type ServerProcessor struct {
+type ParameterServerProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
-	handler      Server
+	handler      ParameterServer
 }
 
-func (p *ServerProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
+func (p *ParameterServerProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
 	p.processorMap[key] = processor
 }
 
-func (p *ServerProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
+func (p *ParameterServerProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
 	processor, ok = p.processorMap[key]
 	return processor, ok
 }
 
-func (p *ServerProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
+func (p *ParameterServerProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
 	return p.processorMap
 }
 
-func NewServerProcessor(handler Server) *ServerProcessor {
+func NewParameterServerProcessor(handler ParameterServer) *ParameterServerProcessor {
 
-	self41 := &ServerProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
-	self41.processorMap["multi_push"] = &serverProcessorMultiPush{handler: handler}
-	self41.processorMap["multi_pull"] = &serverProcessorMultiPull{handler: handler}
-	self41.processorMap["range_push"] = &serverProcessorRangePush{handler: handler}
-	self41.processorMap["range_pull"] = &serverProcessorRangePull{handler: handler}
-	return self41
+	self20 := &ParameterServerProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
+	self20.processorMap["create_task"] = &parameterServerProcessorCreateTask{handler: handler}
+	self20.processorMap["multi_push"] = &parameterServerProcessorMultiPush{handler: handler}
+	self20.processorMap["multi_pull"] = &parameterServerProcessorMultiPull{handler: handler}
+	self20.processorMap["range_push"] = &parameterServerProcessorRangePush{handler: handler}
+	self20.processorMap["range_pull"] = &parameterServerProcessorRangePull{handler: handler}
+	return self20
 }
 
-func (p *ServerProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *ParameterServerProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	name, _, seqId, err := iprot.ReadMessageBegin()
 	if err != nil {
 		return false, err
@@ -351,20 +419,63 @@ func (p *ServerProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, 
 	}
 	iprot.Skip(thrift.STRUCT)
 	iprot.ReadMessageEnd()
-	x42 := thrift.NewTApplicationException(thrift.UNKNOWN_METHOD, "Unknown function "+name)
+	x21 := thrift.NewTApplicationException(thrift.UNKNOWN_METHOD, "Unknown function "+name)
 	oprot.WriteMessageBegin(name, thrift.EXCEPTION, seqId)
-	x42.Write(oprot)
+	x21.Write(oprot)
 	oprot.WriteMessageEnd()
 	oprot.Flush()
-	return false, x42
+	return false, x21
 
 }
 
-type serverProcessorMultiPush struct {
-	handler Server
+type parameterServerProcessorCreateTask struct {
+	handler ParameterServer
 }
 
-func (p *serverProcessorMultiPush) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *parameterServerProcessorCreateTask) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := NewCreateTaskArgs()
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("create_task", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush()
+		return
+	}
+	iprot.ReadMessageEnd()
+	result := NewCreateTaskResult()
+	if result.Ex, err = p.handler.CreateTask(args.Name, args.MaxKey); err != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing create_task: "+err.Error())
+		oprot.WriteMessageBegin("create_task", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush()
+		return
+	}
+	if err2 := oprot.WriteMessageBegin("create_task", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 := result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 := oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 := oprot.Flush(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type parameterServerProcessorMultiPush struct {
+	handler ParameterServer
+}
+
+func (p *parameterServerProcessorMultiPush) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewMultiPushArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -403,11 +514,11 @@ func (p *serverProcessorMultiPush) Process(seqId int32, iprot, oprot thrift.TPro
 	return true, err
 }
 
-type serverProcessorMultiPull struct {
-	handler Server
+type parameterServerProcessorMultiPull struct {
+	handler ParameterServer
 }
 
-func (p *serverProcessorMultiPull) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *parameterServerProcessorMultiPull) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewMultiPullArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -446,11 +557,11 @@ func (p *serverProcessorMultiPull) Process(seqId int32, iprot, oprot thrift.TPro
 	return true, err
 }
 
-type serverProcessorRangePush struct {
-	handler Server
+type parameterServerProcessorRangePush struct {
+	handler ParameterServer
 }
 
-func (p *serverProcessorRangePush) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *parameterServerProcessorRangePush) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewRangePushArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -489,11 +600,11 @@ func (p *serverProcessorRangePush) Process(seqId int32, iprot, oprot thrift.TPro
 	return true, err
 }
 
-type serverProcessorRangePull struct {
-	handler Server
+type parameterServerProcessorRangePull struct {
+	handler ParameterServer
 }
 
-func (p *serverProcessorRangePull) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *parameterServerProcessorRangePull) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := NewRangePullArgs()
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -533,6 +644,210 @@ func (p *serverProcessorRangePull) Process(seqId int32, iprot, oprot thrift.TPro
 }
 
 // HELPER FUNCTIONS AND STRUCTURES
+
+type CreateTaskArgs struct {
+	Name   string `thrift:"name,1"`
+	MaxKey int64  `thrift:"max_key,2"`
+}
+
+func NewCreateTaskArgs() *CreateTaskArgs {
+	return &CreateTaskArgs{}
+}
+
+func (p *CreateTaskArgs) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return fmt.Errorf("%T read error", p)
+	}
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return fmt.Errorf("%T field %d read error: %s", p, fieldId, err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if err := p.readField1(iprot); err != nil {
+				return err
+			}
+		case 2:
+			if err := p.readField2(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return fmt.Errorf("%T read struct end error: %s", p, err)
+	}
+	return nil
+}
+
+func (p *CreateTaskArgs) readField1(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return fmt.Errorf("error reading field 1: %s")
+	} else {
+		p.Name = v
+	}
+	return nil
+}
+
+func (p *CreateTaskArgs) readField2(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI64(); err != nil {
+		return fmt.Errorf("error reading field 2: %s")
+	} else {
+		p.MaxKey = v
+	}
+	return nil
+}
+
+func (p *CreateTaskArgs) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("create_task_args"); err != nil {
+		return fmt.Errorf("%T write struct begin error: %s", p, err)
+	}
+	if err := p.writeField1(oprot); err != nil {
+		return err
+	}
+	if err := p.writeField2(oprot); err != nil {
+		return err
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return fmt.Errorf("%T write field stop error: %s", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return fmt.Errorf("%T write struct stop error: %s", err)
+	}
+	return nil
+}
+
+func (p *CreateTaskArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("name", thrift.STRING, 1); err != nil {
+		return fmt.Errorf("%T write field begin error 1:name: %s", p, err)
+	}
+	if err := oprot.WriteString(string(p.Name)); err != nil {
+		return fmt.Errorf("%T.name (1) field write error: %s", p)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return fmt.Errorf("%T write field end error 1:name: %s", p, err)
+	}
+	return err
+}
+
+func (p *CreateTaskArgs) writeField2(oprot thrift.TProtocol) (err error) {
+	if err := oprot.WriteFieldBegin("max_key", thrift.I64, 2); err != nil {
+		return fmt.Errorf("%T write field begin error 2:max_key: %s", p, err)
+	}
+	if err := oprot.WriteI64(int64(p.MaxKey)); err != nil {
+		return fmt.Errorf("%T.max_key (2) field write error: %s", p)
+	}
+	if err := oprot.WriteFieldEnd(); err != nil {
+		return fmt.Errorf("%T write field end error 2:max_key: %s", p, err)
+	}
+	return err
+}
+
+func (p *CreateTaskArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CreateTaskArgs(%+v)", *p)
+}
+
+type CreateTaskResult struct {
+	Ex *RpcException `thrift:"ex,1"`
+}
+
+func NewCreateTaskResult() *CreateTaskResult {
+	return &CreateTaskResult{}
+}
+
+func (p *CreateTaskResult) Read(iprot thrift.TProtocol) error {
+	if _, err := iprot.ReadStructBegin(); err != nil {
+		return fmt.Errorf("%T read error", p)
+	}
+	for {
+		_, fieldTypeId, fieldId, err := iprot.ReadFieldBegin()
+		if err != nil {
+			return fmt.Errorf("%T field %d read error: %s", p, fieldId, err)
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+		switch fieldId {
+		case 1:
+			if err := p.readField1(iprot); err != nil {
+				return err
+			}
+		default:
+			if err := iprot.Skip(fieldTypeId); err != nil {
+				return err
+			}
+		}
+		if err := iprot.ReadFieldEnd(); err != nil {
+			return err
+		}
+	}
+	if err := iprot.ReadStructEnd(); err != nil {
+		return fmt.Errorf("%T read struct end error: %s", p, err)
+	}
+	return nil
+}
+
+func (p *CreateTaskResult) readField1(iprot thrift.TProtocol) error {
+	p.Ex = NewRpcException()
+	if err := p.Ex.Read(iprot); err != nil {
+		return fmt.Errorf("%T error reading struct: %s", p.Ex)
+	}
+	return nil
+}
+
+func (p *CreateTaskResult) Write(oprot thrift.TProtocol) error {
+	if err := oprot.WriteStructBegin("create_task_result"); err != nil {
+		return fmt.Errorf("%T write struct begin error: %s", p, err)
+	}
+	switch {
+	case p.Ex != nil:
+		if err := p.writeField1(oprot); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteFieldStop(); err != nil {
+		return fmt.Errorf("%T write field stop error: %s", err)
+	}
+	if err := oprot.WriteStructEnd(); err != nil {
+		return fmt.Errorf("%T write struct stop error: %s", err)
+	}
+	return nil
+}
+
+func (p *CreateTaskResult) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.Ex != nil {
+		if err := oprot.WriteFieldBegin("ex", thrift.STRUCT, 1); err != nil {
+			return fmt.Errorf("%T write field begin error 1:ex: %s", p, err)
+		}
+		if err := p.Ex.Write(oprot); err != nil {
+			return fmt.Errorf("%T error writing struct: %s", p.Ex)
+		}
+		if err := oprot.WriteFieldEnd(); err != nil {
+			return fmt.Errorf("%T write field end error 1:ex: %s", p, err)
+		}
+	}
+	return err
+}
+
+func (p *CreateTaskResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("CreateTaskResult(%+v)", *p)
+}
 
 type MultiPushArgs struct {
 	Keys   [][]int64 `thrift:"keys,1"`
@@ -590,20 +905,20 @@ func (p *MultiPushArgs) readField1(iprot thrift.TProtocol) error {
 		if err != nil {
 			return fmt.Errorf("error reading list being: %s")
 		}
-		_elem43 := make([]int64, 0, size)
+		_elem22 := make([]int64, 0, size)
 		for i := 0; i < size; i++ {
-			var _elem44 int64
+			var _elem23 int64
 			if v, err := iprot.ReadI64(); err != nil {
 				return fmt.Errorf("error reading field 0: %s")
 			} else {
-				_elem44 = v
+				_elem23 = v
 			}
-			_elem43 = append(_elem43, _elem44)
+			_elem22 = append(_elem22, _elem23)
 		}
 		if err := iprot.ReadListEnd(); err != nil {
 			return fmt.Errorf("error reading list end: %s")
 		}
-		p.Keys = append(p.Keys, _elem43)
+		p.Keys = append(p.Keys, _elem22)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")
@@ -618,13 +933,13 @@ func (p *MultiPushArgs) readField2(iprot thrift.TProtocol) error {
 	}
 	p.Values = make([]float64, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem45 float64
+		var _elem24 float64
 		if v, err := iprot.ReadDouble(); err != nil {
 			return fmt.Errorf("error reading field 0: %s")
 		} else {
-			_elem45 = v
+			_elem24 = v
 		}
-		p.Values = append(p.Values, _elem45)
+		p.Values = append(p.Values, _elem24)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")
@@ -852,20 +1167,20 @@ func (p *MultiPullArgs) readField1(iprot thrift.TProtocol) error {
 		if err != nil {
 			return fmt.Errorf("error reading list being: %s")
 		}
-		_elem46 := make([]int64, 0, size)
+		_elem25 := make([]int64, 0, size)
 		for i := 0; i < size; i++ {
-			var _elem47 int64
+			var _elem26 int64
 			if v, err := iprot.ReadI64(); err != nil {
 				return fmt.Errorf("error reading field 0: %s")
 			} else {
-				_elem47 = v
+				_elem26 = v
 			}
-			_elem46 = append(_elem46, _elem47)
+			_elem25 = append(_elem25, _elem26)
 		}
 		if err := iprot.ReadListEnd(); err != nil {
 			return fmt.Errorf("error reading list end: %s")
 		}
-		p.Keys = append(p.Keys, _elem46)
+		p.Keys = append(p.Keys, _elem25)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")
@@ -979,13 +1294,13 @@ func (p *MultiPullResult) readField0(iprot thrift.TProtocol) error {
 	}
 	p.Success = make([]float64, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem48 float64
+		var _elem27 float64
 		if v, err := iprot.ReadDouble(); err != nil {
 			return fmt.Errorf("error reading field 0: %s")
 		} else {
-			_elem48 = v
+			_elem27 = v
 		}
-		p.Success = append(p.Success, _elem48)
+		p.Success = append(p.Success, _elem27)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")
@@ -1144,13 +1459,13 @@ func (p *RangePushArgs) readField3(iprot thrift.TProtocol) error {
 	}
 	p.Values = make([]float64, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem49 float64
+		var _elem28 float64
 		if v, err := iprot.ReadDouble(); err != nil {
 			return fmt.Errorf("error reading field 0: %s")
 		} else {
-			_elem49 = v
+			_elem28 = v
 		}
-		p.Values = append(p.Values, _elem49)
+		p.Values = append(p.Values, _elem28)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")
@@ -1492,13 +1807,13 @@ func (p *RangePullResult) readField0(iprot thrift.TProtocol) error {
 	}
 	p.Success = make([]float64, 0, size)
 	for i := 0; i < size; i++ {
-		var _elem50 float64
+		var _elem29 float64
 		if v, err := iprot.ReadDouble(); err != nil {
 			return fmt.Errorf("error reading field 0: %s")
 		} else {
-			_elem50 = v
+			_elem29 = v
 		}
-		p.Success = append(p.Success, _elem50)
+		p.Success = append(p.Success, _elem29)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return fmt.Errorf("error reading list end: %s")

@@ -5,12 +5,11 @@ exception RpcException {
     2: string message
 }
 
-service Router {
-    void set_nodes(1:list<string> nodes) throws (1:RpcException ex),
-    list<string> get_nodes_by_feature(1:list<i64> key) throws (1:RpcException ex)
-}
 
-service Server {
+service ParameterServer {
+    void create_task(1:string name, 2:i64 max_key) throws (1:RpcException ex),
+
+    // work with parameters
     void multi_push(1:list<list<i64>> keys, 2:list<double> values) throws (1:RpcException ex),
     list<double> multi_pull(1:list<list<i64>> keys) throws (1:RpcException ex),
 

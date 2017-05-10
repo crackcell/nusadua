@@ -56,7 +56,7 @@ func (this *Rpc) Start(host string, port int) (err error) {
 		return err
 	}
 
-	processorFactory := thrift.NewTProcessorFactory(rpc.NewServerProcessor(this))
+	processorFactory := thrift.NewTProcessorFactory(rpc.NewParameterServerProcessor(this))
 
 	this.server = thrift.NewTSimpleServerFactory4(processorFactory, serverTransport, transportFactory, protocolFactory)
 	go func() {
@@ -86,6 +86,10 @@ func (this *Rpc) Wait() {
 		return
 	}
 	<-this.stop
+}
+
+func (this *Rpc) CreateTask(name string, maxKey int64) (ex *rpc.RpcException, err error) {
+	return nil, nil
 }
 
 func (this *Rpc) MultiPush(keys [][]int64, values []float64) (ex *rpc.RpcException, err error) {

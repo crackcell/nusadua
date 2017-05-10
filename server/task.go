@@ -10,35 +10,29 @@
 /**
  *
  *
- * @file rpc_test.go
+ * @file task.go
  * @author Menglong TAN <tanmenglong@gmail.com>
- * @date Mon May  8 15:01:39 2017
+ * @date Wed May 10 15:54:39 2017
  *
  **/
 
-package router
-
-import (
-	"fmt"
-	"testing"
-	"time"
-)
+package server
 
 //===================================================================
 // Public APIs
 //===================================================================
 
-func TestRpc(t *testing.T) {
-	r := NewRpc()
-	r.Start("127.0.0.1", 9099)
-	go func() {
-		for i := 1; i <= 5; i++ {
-			fmt.Println("waiting", i)
-			time.Sleep(time.Second)
-		}
-		r.Stop()
-	}()
-	r.Wait()
+const (
+	TASK_NOT_STARTED = iota
+	TASK_STARTED
+	TASK_RUNNING
+	TASK_FAILED
+	TASK_DONE
+)
+
+type Task struct {
+	Name   string
+	Status int
 }
 
 //===================================================================

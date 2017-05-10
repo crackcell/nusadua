@@ -20,6 +20,7 @@ func Usage() {
 	fmt.Fprintln(os.Stderr, "Usage of ", os.Args[0], " [-h host:port] [-u url] [-f[ramed]] function [arg1 [arg2...]]:")
 	flag.PrintDefaults()
 	fmt.Fprintln(os.Stderr, "\nFunctions:")
+	fmt.Fprintln(os.Stderr, "  void create_task(string name, i64 max_key)")
 	fmt.Fprintln(os.Stderr, "  void multi_push( keys,  values)")
 	fmt.Fprintln(os.Stderr, "   multi_pull( keys)")
 	fmt.Fprintln(os.Stderr, "  void range_push(i64 start_key, i64 end_key,  values)")
@@ -111,49 +112,65 @@ func main() {
 		Usage()
 		os.Exit(1)
 	}
-	client := rpc.NewServerClientFactory(trans, protocolFactory)
+	client := rpc.NewParameterServerClientFactory(trans, protocolFactory)
 	if err := trans.Open(); err != nil {
 		fmt.Fprintln(os.Stderr, "Error opening socket to ", host, ":", port, " ", err)
 		os.Exit(1)
 	}
 
 	switch cmd {
+	case "create_task":
+		if flag.NArg()-1 != 2 {
+			fmt.Fprintln(os.Stderr, "CreateTask requires 2 args")
+			flag.Usage()
+		}
+		argvalue0 := flag.Arg(1)
+		value0 := argvalue0
+		argvalue1, err31 := (strconv.ParseInt(flag.Arg(2), 10, 64))
+		if err31 != nil {
+			Usage()
+			return
+		}
+		value1 := argvalue1
+		fmt.Print(client.CreateTask(value0, value1))
+		fmt.Print("\n")
+		break
 	case "multi_push":
 		if flag.NArg()-1 != 2 {
 			fmt.Fprintln(os.Stderr, "MultiPush requires 2 args")
 			flag.Usage()
 		}
-		arg51 := flag.Arg(1)
-		mbTrans52 := thrift.NewTMemoryBufferLen(len(arg51))
-		defer mbTrans52.Close()
-		_, err53 := mbTrans52.WriteString(arg51)
-		if err53 != nil {
+		arg32 := flag.Arg(1)
+		mbTrans33 := thrift.NewTMemoryBufferLen(len(arg32))
+		defer mbTrans33.Close()
+		_, err34 := mbTrans33.WriteString(arg32)
+		if err34 != nil {
 			Usage()
 			return
 		}
-		factory54 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt55 := factory54.GetProtocol(mbTrans52)
+		factory35 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt36 := factory35.GetProtocol(mbTrans33)
 		containerStruct0 := rpc.NewMultiPushArgs()
-		err56 := containerStruct0.ReadField1(jsProt55)
-		if err56 != nil {
+		err37 := containerStruct0.ReadField1(jsProt36)
+		if err37 != nil {
 			Usage()
 			return
 		}
 		argvalue0 := containerStruct0.Keys
 		value0 := argvalue0
-		arg57 := flag.Arg(2)
-		mbTrans58 := thrift.NewTMemoryBufferLen(len(arg57))
-		defer mbTrans58.Close()
-		_, err59 := mbTrans58.WriteString(arg57)
-		if err59 != nil {
+		arg38 := flag.Arg(2)
+		mbTrans39 := thrift.NewTMemoryBufferLen(len(arg38))
+		defer mbTrans39.Close()
+		_, err40 := mbTrans39.WriteString(arg38)
+		if err40 != nil {
 			Usage()
 			return
 		}
-		factory60 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt61 := factory60.GetProtocol(mbTrans58)
+		factory41 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt42 := factory41.GetProtocol(mbTrans39)
 		containerStruct1 := rpc.NewMultiPushArgs()
-		err62 := containerStruct1.ReadField2(jsProt61)
-		if err62 != nil {
+		err43 := containerStruct1.ReadField2(jsProt42)
+		if err43 != nil {
 			Usage()
 			return
 		}
@@ -167,19 +184,19 @@ func main() {
 			fmt.Fprintln(os.Stderr, "MultiPull requires 1 args")
 			flag.Usage()
 		}
-		arg63 := flag.Arg(1)
-		mbTrans64 := thrift.NewTMemoryBufferLen(len(arg63))
-		defer mbTrans64.Close()
-		_, err65 := mbTrans64.WriteString(arg63)
-		if err65 != nil {
+		arg44 := flag.Arg(1)
+		mbTrans45 := thrift.NewTMemoryBufferLen(len(arg44))
+		defer mbTrans45.Close()
+		_, err46 := mbTrans45.WriteString(arg44)
+		if err46 != nil {
 			Usage()
 			return
 		}
-		factory66 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt67 := factory66.GetProtocol(mbTrans64)
+		factory47 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt48 := factory47.GetProtocol(mbTrans45)
 		containerStruct0 := rpc.NewMultiPullArgs()
-		err68 := containerStruct0.ReadField1(jsProt67)
-		if err68 != nil {
+		err49 := containerStruct0.ReadField1(jsProt48)
+		if err49 != nil {
 			Usage()
 			return
 		}
@@ -193,31 +210,31 @@ func main() {
 			fmt.Fprintln(os.Stderr, "RangePush requires 3 args")
 			flag.Usage()
 		}
-		argvalue0, err69 := (strconv.ParseInt(flag.Arg(1), 10, 64))
-		if err69 != nil {
+		argvalue0, err50 := (strconv.ParseInt(flag.Arg(1), 10, 64))
+		if err50 != nil {
 			Usage()
 			return
 		}
 		value0 := argvalue0
-		argvalue1, err70 := (strconv.ParseInt(flag.Arg(2), 10, 64))
-		if err70 != nil {
+		argvalue1, err51 := (strconv.ParseInt(flag.Arg(2), 10, 64))
+		if err51 != nil {
 			Usage()
 			return
 		}
 		value1 := argvalue1
-		arg71 := flag.Arg(3)
-		mbTrans72 := thrift.NewTMemoryBufferLen(len(arg71))
-		defer mbTrans72.Close()
-		_, err73 := mbTrans72.WriteString(arg71)
-		if err73 != nil {
+		arg52 := flag.Arg(3)
+		mbTrans53 := thrift.NewTMemoryBufferLen(len(arg52))
+		defer mbTrans53.Close()
+		_, err54 := mbTrans53.WriteString(arg52)
+		if err54 != nil {
 			Usage()
 			return
 		}
-		factory74 := thrift.NewTSimpleJSONProtocolFactory()
-		jsProt75 := factory74.GetProtocol(mbTrans72)
+		factory55 := thrift.NewTSimpleJSONProtocolFactory()
+		jsProt56 := factory55.GetProtocol(mbTrans53)
 		containerStruct2 := rpc.NewRangePushArgs()
-		err76 := containerStruct2.ReadField3(jsProt75)
-		if err76 != nil {
+		err57 := containerStruct2.ReadField3(jsProt56)
+		if err57 != nil {
 			Usage()
 			return
 		}
@@ -231,14 +248,14 @@ func main() {
 			fmt.Fprintln(os.Stderr, "RangePull requires 2 args")
 			flag.Usage()
 		}
-		argvalue0, err77 := (strconv.ParseInt(flag.Arg(1), 10, 64))
-		if err77 != nil {
+		argvalue0, err58 := (strconv.ParseInt(flag.Arg(1), 10, 64))
+		if err58 != nil {
 			Usage()
 			return
 		}
 		value0 := argvalue0
-		argvalue1, err78 := (strconv.ParseInt(flag.Arg(2), 10, 64))
-		if err78 != nil {
+		argvalue1, err59 := (strconv.ParseInt(flag.Arg(2), 10, 64))
+		if err59 != nil {
 			Usage()
 			return
 		}

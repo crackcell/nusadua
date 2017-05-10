@@ -24,7 +24,6 @@ import (
 	"github.com/crackcell/nusadua/cluster"
 	"github.com/crackcell/nusadua/config"
 	"github.com/crackcell/nusadua/log"
-	"github.com/crackcell/nusadua/router"
 	"github.com/crackcell/nusadua/server"
 	"os"
 	"sync"
@@ -40,23 +39,11 @@ import (
 //===================================================================
 
 var wg sync.WaitGroup
-var routerRpc = router.NewRpc()
 var serverRpc = server.NewRpc()
 var discover *cluster.Catalog
 var instanceId string
 
 func runRpc() {
-	if config.Role == "router" {
-		routerRpc.Start(config.GlobalConfig.RouterConfig.Host,
-			config.GlobalConfig.RouterConfig.Port)
-
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			routerRpc.Wait()
-		}()
-	}
-
 	if config.Role == "server" {
 		serverRpc.Start(config.GlobalConfig.ServerConfig.Host,
 			config.GlobalConfig.ServerConfig.Port)
@@ -111,9 +98,6 @@ func main() {
 	registerService()
 
 	cleanup := func() {
-		if config.Role == "router" {
-			routerRpc.Stop()
-		}
 		if config.Role == "server" {
 			serverRpc.Stop()
 		}

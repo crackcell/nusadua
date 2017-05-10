@@ -19,8 +19,8 @@
 package config
 
 import (
-	"github.com/crackcell/kihaadhoo/flag"
 	"fmt"
+	"github.com/crackcell/kihaadhoo/flag"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -44,7 +44,7 @@ type Config struct {
 	ConsulConfig ConsulConfig `yaml:"consul"`
 	LogConfig    LogConfig    `yaml:"log"`
 	RouterConfig RouterConfig `yaml:"router"`
-	ServerConfig ServerConfig `yaml:"server"`
+	RpcConfig    RpcConfig    `yaml:"rpc"`
 }
 
 type LogConfig struct {
@@ -62,12 +62,11 @@ type ConsulConfig struct {
 }
 
 type RouterConfig struct {
-	Host       string `yaml:"host"`
-	Port       int    `yaml:"port"`
-	ReplicaNum int    `yaml:"replica_num"`
+	RefreshInterval int64 `yaml:"refresh_interval"`
+	Replica         int   `yaml:"replica"`
 }
 
-type ServerConfig struct {
+type RpcConfig struct {
 	Host string `yaml:"host"`
 	Port int    `yaml:"port"`
 }
@@ -75,10 +74,10 @@ type ServerConfig struct {
 var GlobalConfig = &Config{}
 
 func Init() {
-	flag.BoolVar(&Help, "h","help", false, "Print help message")
-	flag.BoolVar(&Verbose, "v","verbose", false, "Use verbose output")
+	flag.BoolVar(&Help, "h", "help", false, "Print help message")
+	flag.BoolVar(&Verbose, "v", "verbose", false, "Use verbose output")
 
-	flag.StringVar(&Role, "r", "role","server", "Node role")
+	flag.StringVar(&Role, "r", "role", "server", "Node role")
 	flag.StringVar(&ConfigFile, "c", "config", "", "Config file")
 
 	flag.Parse()

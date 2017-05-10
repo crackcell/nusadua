@@ -17,20 +17,20 @@
 		{
 			"checksumSHA1": "GvZ0Y+y3XkBAqF2U9lWJy4Q9S+c=",
 			"path": "github.com/crackcell/kihaadhoo/collections/hashring",
-			"revision": "cb1ce6a51ee0eaf88ba23ff2dff43c877c929849",
-			"revisionTime": "2017-05-08T16:50:25Z"
+			"revision": "3c22e230e0e424950a0661bcff1e883206de81bd",
+			"revisionTime": "2017-05-10T07:30:00Z"
 		},
 		{
 			"checksumSHA1": "ccBwH6Pk+jXcqUXujyRcN4UuFv8=",
 			"path": "github.com/crackcell/kihaadhoo/flag",
-			"revision": "cb1ce6a51ee0eaf88ba23ff2dff43c877c929849",
-			"revisionTime": "2017-05-08T16:50:25Z"
+			"revision": "3c22e230e0e424950a0661bcff1e883206de81bd",
+			"revisionTime": "2017-05-10T07:30:00Z"
 		},
 		{
 			"checksumSHA1": "RsNdIq58OHDnY6woDz89vtV+Xzs=",
 			"path": "github.com/crackcell/kihaadhoo/signal",
-			"revision": "cb1ce6a51ee0eaf88ba23ff2dff43c877c929849",
-			"revisionTime": "2017-05-08T16:50:25Z"
+			"revision": "3c22e230e0e424950a0661bcff1e883206de81bd",
+			"revisionTime": "2017-05-10T07:30:00Z"
 		},
 		{
 			"checksumSHA1": "iGAHizBUN43QlmYmn1bPLlNN9pw=",
@@ -65,6 +65,18 @@
 			"path": "github.com/mitchellh/go-homedir",
 			"revision": "7fa2471ba75408865496d4f0c7db26d234fb71b8",
 			"revisionTime": "2017-05-10T01:46:51Z"
+		},
+		{
+			"checksumSHA1": "bRBt7q0YwpMWUS64HiXGdCmmVkQ=",
+			"path": "github.com/toberndo/go-stree/stree",
+			"revision": "aed0e981c82f7c462f1f6fb6ac873af95bcc7065",
+			"revisionTime": "2015-04-24T08:54:43Z"
+		},
+		{
+			"checksumSHA1": "/EsrENahqJSfyjCJvMsBMEiXCVk=",
+			"path": "github.com/toberndo/go-stree/stree/multi",
+			"revision": "aed0e981c82f7c462f1f6fb6ac873af95bcc7065",
+			"revisionTime": "2015-04-24T08:54:43Z"
 		},
 		{
 			"checksumSHA1": "12GqsW8PiRPnezDDy0v4brZrndM=",
