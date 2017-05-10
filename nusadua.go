@@ -71,7 +71,8 @@ func runRpc() {
 
 func registerService() {
 	// register to cluster discover service
-	discover, err := cluster.NewServiceDiscover(config.GlobalConfig.ConsulConfig.AgentAddr)
+	var err error
+	discover, err = cluster.NewServiceDiscover(config.GlobalConfig.ConsulConfig.AgentAddr)
 	if err != nil {
 		panic(err)
 	}
