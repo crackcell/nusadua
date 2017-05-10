@@ -84,21 +84,8 @@ func registerService() {
 		config.GlobalConfig.ServerConfig.Port)
 }
 
-func deregisterService() {
-	discover.DeRegister(instanceId)
-}
-
-func handleSignals() {
+func handleSignals(cleanup func()) {
 	// init signal handlers
-	cleanup := func() {
-		if config.Role == "router" {
-			routerRpc.Stop()
-		}
-		if config.Role == "server" {
-			serverRpc.Stop()
-		}
-	}
-
 	sset := signal.NewSignalHandlerSet()
 
 	handler := func(s os.Signal, arg interface{}) {
@@ -122,8 +109,17 @@ func main() {
 
 	runRpc()
 	registerService()
-	defer deregisterService()
-	handleSignals()
+
+	cleanup := func() {
+		if config.Role == "router" {
+			routerRpc.Stop()
+		}
+		if config.Role == "server" {
+			serverRpc.Stop()
+		}
+		discover.DeRegister(instanceId)
+	}
+	handleSignals(cleanup)
 
 	// wait for finish
 	log.AppLog.Infof("started as %s", config.Role)
