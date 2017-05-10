@@ -19,7 +19,7 @@
 package config
 
 import (
-	"flag"
+	"github.com/crackcell/kihaadhoo/flag"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -75,15 +75,11 @@ type ServerConfig struct {
 var GlobalConfig = &Config{}
 
 func Init() {
-	flag.BoolVar(&Help, "help", false, "Print help message")
-	flag.BoolVar(&Help, "h", false, "Print help message")
-	flag.BoolVar(&Verbose, "verbose", false, "Use verbose output")
-	flag.BoolVar(&Verbose, "v", false, "Use verbose output")
+	flag.BoolVar(&Help, "h","help", false, "Print help message")
+	flag.BoolVar(&Verbose, "v","verbose", false, "Use verbose output")
 
-	flag.StringVar(&Role, "r", "server", "Node role")
-	flag.StringVar(&Role, "role", "server", "Node role")
-	flag.StringVar(&ConfigFile, "c", "", "Config file")
-	flag.StringVar(&ConfigFile, "config", "", "Config file")
+	flag.StringVar(&Role, "r", "role","server", "Node role")
+	flag.StringVar(&ConfigFile, "c", "config", "", "Config file")
 
 	flag.Parse()
 	if Help {

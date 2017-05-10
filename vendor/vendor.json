@@ -21,6 +21,12 @@
 			"revisionTime": "2017-05-08T16:50:25Z"
 		},
 		{
+			"checksumSHA1": "ccBwH6Pk+jXcqUXujyRcN4UuFv8=",
+			"path": "github.com/crackcell/kihaadhoo/flag",
+			"revision": "cb1ce6a51ee0eaf88ba23ff2dff43c877c929849",
+			"revisionTime": "2017-05-08T16:50:25Z"
+		},
+		{
 			"checksumSHA1": "RsNdIq58OHDnY6woDz89vtV+Xzs=",
 			"path": "github.com/crackcell/kihaadhoo/signal",
 			"revision": "cb1ce6a51ee0eaf88ba23ff2dff43c877c929849",
