@@ -11,7 +11,7 @@
 
 all :
 	make -C thrift
-	go build
+	GO15VENDOREXPERIMENT=1 go build
 
 clean :
 	make clean -C thrift

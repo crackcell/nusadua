@@ -1,0 +1,71 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "OgdRcoRZokbpXKjclmzxhgIcpJI=",
+			"path": "git.apache.org/thrift.git/lib/go/thrift",
+			"revision": "224c334e50a553504385dd001dadf31f7346b30a",
+			"revisionTime": "2017-05-06T20:38:43Z"
+		},
+		{
+			"checksumSHA1": "2avCvSn0XonfApKKuTMyiQmk7s0=",
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "3ec0642a7fb6488f65b06f9040adc67e3990296a",
+			"revisionTime": "2016-08-29T20:23:21Z"
+		},
+		{
+			"checksumSHA1": "GvZ0Y+y3XkBAqF2U9lWJy4Q9S+c=",
+			"path": "github.com/crackcell/kihaadhoo/collections/hashring",
+			"revision": "cb1ce6a51ee0eaf88ba23ff2dff43c877c929849",
+			"revisionTime": "2017-05-08T16:50:25Z"
+		},
+		{
+			"checksumSHA1": "RsNdIq58OHDnY6woDz89vtV+Xzs=",
+			"path": "github.com/crackcell/kihaadhoo/signal",
+			"revision": "cb1ce6a51ee0eaf88ba23ff2dff43c877c929849",
+			"revisionTime": "2017-05-08T16:50:25Z"
+		},
+		{
+			"checksumSHA1": "iGAHizBUN43QlmYmn1bPLlNN9pw=",
+			"path": "github.com/hashicorp/consul/api",
+			"revision": "7fa2471ba75408865496d4f0c7db26d234fb71b8",
+			"revisionTime": "2017-05-10T01:46:51Z"
+		},
+		{
+			"checksumSHA1": "b8F628srIitj5p7Y130xc9k0QWs=",
+			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/go-cleanhttp",
+			"path": "github.com/hashicorp/go-cleanhttp",
+			"revision": "7fa2471ba75408865496d4f0c7db26d234fb71b8",
+			"revisionTime": "2017-05-10T01:46:51Z"
+		},
+		{
+			"checksumSHA1": "A1PcINvF3UiwHRKn8UcgARgvGRs=",
+			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/go-rootcerts",
+			"path": "github.com/hashicorp/go-rootcerts",
+			"revision": "7fa2471ba75408865496d4f0c7db26d234fb71b8",
+			"revisionTime": "2017-05-10T01:46:51Z"
+		},
+		{
+			"checksumSHA1": "E3Xcanc9ouQwL+CZGOUyA/+giLg=",
+			"origin": "github.com/hashicorp/consul/vendor/github.com/hashicorp/serf/coordinate",
+			"path": "github.com/hashicorp/serf/coordinate",
+			"revision": "7fa2471ba75408865496d4f0c7db26d234fb71b8",
+			"revisionTime": "2017-05-10T01:46:51Z"
+		},
+		{
+			"checksumSHA1": "V/quM7+em2ByJbWBLOsEwnY3j/Q=",
+			"origin": "github.com/hashicorp/consul/vendor/github.com/mitchellh/go-homedir",
+			"path": "github.com/mitchellh/go-homedir",
+			"revision": "7fa2471ba75408865496d4f0c7db26d234fb71b8",
+			"revisionTime": "2017-05-10T01:46:51Z"
+		},
+		{
+			"checksumSHA1": "12GqsW8PiRPnezDDy0v4brZrndM=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "a5b47d31c556af34a302ce5d659e6fea44d90de0",
+			"revisionTime": "2016-09-28T15:37:09Z"
+		}
+	],
+	"rootPath": "github.com/crackcell/nusadua"
+}
