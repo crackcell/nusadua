@@ -16,7 +16,9 @@ rpc:
   host: 127.0.0.1
   port: 1989
 
-router:
+catelog:
   # Interval(ms) to get node info from consul
   refresh_interval: 1000
+
+router:
   replica: 3

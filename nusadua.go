@@ -20,14 +20,15 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"sync"
+	"syscall"
+
 	"github.com/crackcell/kihaadhoo/signal"
 	"github.com/crackcell/nusadua/cluster"
 	"github.com/crackcell/nusadua/config"
 	"github.com/crackcell/nusadua/log"
 	"github.com/crackcell/nusadua/server"
-	"os"
-	"sync"
-	"syscall"
 )
 
 //===================================================================
@@ -40,13 +41,13 @@ import (
 
 var wg sync.WaitGroup
 var serverRpc = server.NewRpc()
-var discover *cluster.Catalog
+var catelog *cluster.Catalog
 var instanceId string
 
 func runRpc() {
 	if config.Role == "server" {
-		serverRpc.Start(config.GlobalConfig.ServerConfig.Host,
-			config.GlobalConfig.ServerConfig.Port)
+		serverRpc.Start(config.GlobalConfig.RpcConfig.Host,
+			config.GlobalConfig.RpcConfig.Port)
 
 		wg.Add(1)
 		go func() {
@@ -59,16 +60,16 @@ func runRpc() {
 func registerService() {
 	// register to cluster discover service
 	var err error
-	discover, err = cluster.NewServiceDiscover(config.GlobalConfig.ConsulConfig.AgentAddr)
+	catelog, err = cluster.NewCatalog(config.GlobalConfig.ConsulConfig.AgentAddr)
 	if err != nil {
 		panic(err)
 	}
 	instanceId = fmt.Sprintf("%s:%d",
 		config.GlobalConfig.ConsulConfig.ServiceName,
-		config.GlobalConfig.ServerConfig.Port)
-	discover.Register(config.GlobalConfig.ConsulConfig.ServiceName,
+		config.GlobalConfig.RpcConfig.Port)
+	catelog.Register(config.GlobalConfig.ConsulConfig.ServiceName,
 		instanceId,
-		config.GlobalConfig.ServerConfig.Port)
+		config.GlobalConfig.RpcConfig.Port)
 }
 
 func handleSignals(cleanup func()) {
@@ -101,7 +102,7 @@ func main() {
 		if config.Role == "server" {
 			serverRpc.Stop()
 		}
-		discover.DeRegister(instanceId)
+		catelog.DeRegister(instanceId)
 	}
 	handleSignals(cleanup)
 

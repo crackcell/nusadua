@@ -41,10 +41,11 @@ var (
 )
 
 type Config struct {
-	ConsulConfig ConsulConfig `yaml:"consul"`
-	LogConfig    LogConfig    `yaml:"log"`
-	RouterConfig RouterConfig `yaml:"router"`
-	RpcConfig    RpcConfig    `yaml:"rpc"`
+	ConsulConfig  ConsulConfig  `yaml:"consul"`
+	LogConfig     LogConfig     `yaml:"log"`
+	CatalogConfig CatalogConfig `yaml:"catalog"`
+	RouterConfig  RouterConfig  `yaml:"router"`
+	RpcConfig     RpcConfig     `yaml:"rpc"`
 }
 
 type LogConfig struct {
@@ -61,9 +62,12 @@ type ConsulConfig struct {
 	ServiceName string `yaml:"service_name"`
 }
 
-type RouterConfig struct {
+type CatalogConfig struct {
 	RefreshInterval int64 `yaml:"refresh_interval"`
-	Replica         int   `yaml:"replica"`
+}
+
+type RouterConfig struct {
+	Replica int `yaml:"replica"`
 }
 
 type RpcConfig struct {

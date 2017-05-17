@@ -34,10 +34,11 @@ type Instance struct {
 }
 
 type Catalog struct {
+	Instances    []Instance
 	consulClient *consulapi.Client
 }
 
-func NewServiceDiscover(addr string) (clusterInfo *Catalog, err error) {
+func NewCatalog(addr string) (clusterInfo *Catalog, err error) {
 	consulConfig := consulapi.DefaultConfig()
 	consulConfig.Address = addr
 	c, err := consulapi.NewClient(consulConfig)
